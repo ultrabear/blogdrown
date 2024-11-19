@@ -1,0 +1,25 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+overflow-checks = true
+lto = "thin"
+
+[workspace]
+resolver = "2"
+members = ["prisma-cli"]
+
+
+[workspace.dependencies]
+prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11", default-features = false, features = ["postgresql"] }
+prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11", default-features = false, features = ["postgresql"] }
+
+[dependencies]
+axum = { version = "0.7.9", features = ["macros", "http2"] }
+prisma-client-rust = { workspace = true }
+serde = "1.0.215"

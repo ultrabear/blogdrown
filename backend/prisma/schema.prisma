@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "cargo prisma"
+  output   = "../src/prisma.rs"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @db.Uuid
+  username String @unique
+  email    String @unique
+  password String
+
+  created_at DateTime @default(now())
+
+  posts       BlogPost[]
+  comments    Comment[]
+  saved_posts SavedPost[]
+  following   FollowingMap[] @relation("User")
+  followers   FollowingMap[] @relation("Follows")
+}
+
+model BlogPost {
+  id         String @id @db.Uuid
+  title      String
+  title_norm String
+  owner_id   String @db.Uuid
+  owner      User   @relation(fields: [owner_id], references: [id])
+
+  created_at DateTime @default(now())
+
+  versions BlogPostVersion[]
+  comments Comment[]
+  saves    SavedPost[]
+
+  @@index([title_norm])
+}
+
+model BlogPostVersion {
+  id BigInt @id @default(autoincrement()) @db.BigInt
+
+  post_id String   @db.Uuid
+  post    BlogPost @relation(fields: [post_id], references: [id])
+  text    String
+
+  created_at DateTime @default(now())
+
+  @@index([post_id, created_at])
+}
+
+model Comment {
+  id BigInt @id @default(autoincrement()) @db.BigInt
+
+  post_id String   @db.Uuid
+  post    BlogPost @relation(fields: [post_id], references: [id])
+
+  author_id String @db.Uuid
+  author    User   @relation(fields: [author_id], references: [id])
+
+  text String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@index([post_id, created_at])
+  @@index([author_id])
+}
+
+model SavedPost {
+  user_id String @db.Uuid
+  user    User   @relation(fields: [user_id], references: [id])
+
+  post_id String   @db.Uuid
+  post    BlogPost @relation(fields: [post_id], references: [id])
+
+  @@id([user_id, post_id])
+  @@index([post_id, user_id])
+}
+
+model FollowingMap {
+  user_id String @db.Uuid
+  user    User   @relation("User", fields: [user_id], references: [id])
+
+  follow_id String @db.Uuid
+  follow    User   @relation("Follows", fields: [follow_id], references: [id])
+
+  @@id([user_id, follow_id])
+  @@index([follow_id, user_id])
+}
