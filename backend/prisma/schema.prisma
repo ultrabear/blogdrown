@@ -21,9 +21,9 @@ model User {
 
   posts       BlogPost[]
   comments    Comment[]
-  saved_posts SavedPost[]
-  following   FollowingMap[] @relation("User")
-  followers   FollowingMap[] @relation("Follows")
+  saved_posts BlogPost[] @relation("SavedPosts")
+  following   User[] @relation("UserFollow")
+  followers   User[] @relation("UserFollow")
 }
 
 model BlogPost {
@@ -31,13 +31,13 @@ model BlogPost {
   title      String
   title_norm String
   owner_id   String @db.Uuid
-  owner      User   @relation(fields: [owner_id], references: [id])
+  owner      User   @relation(fields: [owner_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
 
   versions BlogPostVersion[]
   comments Comment[]
-  saves    SavedPost[]
+  saves    User[] @relation("SavedPosts")
 
   @@index([title_norm])
 }
@@ -46,7 +46,7 @@ model BlogPostVersion {
   id BigInt @id @default(autoincrement()) @db.BigInt
 
   post_id String   @db.Uuid
-  post    BlogPost @relation(fields: [post_id], references: [id])
+  post    BlogPost @relation(fields: [post_id], references: [id], onDelete: Cascade)
   text    String
 
   created_at DateTime @default(now())
@@ -58,10 +58,10 @@ model Comment {
   id BigInt @id @default(autoincrement()) @db.BigInt
 
   post_id String   @db.Uuid
-  post    BlogPost @relation(fields: [post_id], references: [id])
+  post    BlogPost @relation(fields: [post_id], references: [id], onDelete: Cascade)
 
   author_id String @db.Uuid
-  author    User   @relation(fields: [author_id], references: [id])
+  author    User   @relation(fields: [author_id], references: [id], onDelete: Cascade)
 
   text String
 
@@ -70,26 +70,4 @@ model Comment {
 
   @@index([post_id, created_at])
   @@index([author_id])
-}
-
-model SavedPost {
-  user_id String @db.Uuid
-  user    User   @relation(fields: [user_id], references: [id])
-
-  post_id String   @db.Uuid
-  post    BlogPost @relation(fields: [post_id], references: [id])
-
-  @@id([user_id, post_id])
-  @@index([post_id, user_id])
-}
-
-model FollowingMap {
-  user_id String @db.Uuid
-  user    User   @relation("User", fields: [user_id], references: [id])
-
-  follow_id String @db.Uuid
-  follow    User   @relation("Follows", fields: [follow_id], references: [id])
-
-  @@id([user_id, follow_id])
-  @@index([follow_id, user_id])
 }
