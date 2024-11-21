@@ -14,6 +14,7 @@ use tracing::Level;
 #[allow(unused, warnings)]
 mod prisma;
 
+mod bounded;
 mod api;
 mod auth;
 
@@ -50,7 +51,7 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
             5000u16
         });
 
-    let listener = tokio::net::TcpListener::bind(("0.0.0.0", port))
+    let listener = tokio::net::TcpListener::bind(("::", port))
         .await
         .map_err(|_| format!("Failed to bind port {port}"))?;
 

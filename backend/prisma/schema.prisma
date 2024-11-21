@@ -39,7 +39,7 @@ model BlogPost {
   comments Comment[]
   saves    User[] @relation("SavedPosts")
 
-  @@index([title_norm])
+  @@index([owner_id, title_norm])
 }
 
 model BlogPostVersion {

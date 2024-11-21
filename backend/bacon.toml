@@ -60,7 +60,7 @@ on_success = "back" # so that we don't open the browser at each change
 # if it makes sense for this crate.
 [jobs.run]
 command = [
-    "nice", "-n19", "dotenv", "cargo", "run",
+    "nice", "-n19", "dotenv", "cargo", "run", "--target-dir", "target/bacon",
     # put launch parameters for your program behind a `--` separator
 ]
 need_stdout = true

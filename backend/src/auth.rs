@@ -18,7 +18,8 @@ use ulid::Ulid;
 use uuid::Uuid;
 
 use crate::{
-    api::{ApiError, AuthUser, Error, Login, MinUser, Signup},
+    api::{ApiError, ApiJson, AuthUser, Created, Error, Login, MinUser, Signup},
+    bounded::BoundString,
     prisma, BlogDrownState,
 };
 
@@ -113,17 +114,16 @@ impl FromRequestParts<BlogDrownState> for RequireLogin {
 macro_rules! authuser {
     ($user:ident) => {
         Json(AuthUser {
-            email: $user.email,
+            email: BoundString::new_unchecked($user.email),
             created_at: $user.created_at,
             min: MinUser {
                 id: $user.id.parse::<Uuid>().expect("schema is uuid").into(),
-                username: $user.username,
+                username: BoundString::new_unchecked($user.username),
             },
         })
     };
 }
 
-#[debug_handler]
 async fn auth_info(
     user: RequireLogin,
     State(state): State<BlogDrownState>,
@@ -145,8 +145,8 @@ async fn auth_info(
 
 async fn signup(
     State(state): State<BlogDrownState>,
-    Json(signup): Json<Signup>,
-) -> Result<(impl IntoResponseParts, Json<AuthUser>), ApiError> {
+    ApiJson(signup): ApiJson<Signup>,
+) -> Result<(impl IntoResponseParts, Created<Json<AuthUser>>), ApiError> {
     let query = state.prisma;
 
     use prisma::user;
@@ -154,8 +154,8 @@ async fn signup(
     let existing = query
         .user()
         .count(vec![or![
-            user::username::equals(signup.username.clone()),
-            user::email::equals(signup.email.clone())
+            user::username::equals(signup.username.clone().into_inner()),
+            user::email::equals(signup.email.clone().into_inner())
         ]])
         .exec()
         .await
@@ -167,7 +167,7 @@ async fn signup(
         let username = tokio::spawn(async move {
             uquery
                 .user()
-                .count(vec![user::username::equals(username)])
+                .count(vec![user::username::equals(username.into_inner())])
                 .exec()
                 .await
                 .map_err(Error::from_query)
@@ -177,7 +177,7 @@ async fn signup(
         let email = tokio::spawn(async move {
             equery
                 .user()
-                .count(vec![user::email::equals(email)])
+                .count(vec![user::email::equals(email.into_inner())])
                 .exec()
                 .await
                 .map_err(Error::from_query)
@@ -203,8 +203,8 @@ async fn signup(
         .user()
         .create(
             Uuid::now_v7().to_string(),
-            signup.username,
-            signup.email,
+            signup.username.into_inner(),
+            signup.email.into_inner(),
             scrypt_hash(signup.password),
             vec![],
         )
@@ -224,20 +224,20 @@ async fn signup(
             SET_COOKIE,
             format!("session={token}; HttpOnly; SameSite=Lax; Path=/"),
         )]),
-        authuser!(user),
+        Created(authuser!(user)),
     ))
 }
 
 async fn login(
     State(state): State<BlogDrownState>,
-    Json(signup): Json<Login>,
+    ApiJson(signup): ApiJson<Login>,
 ) -> Result<(impl IntoResponseParts, Json<AuthUser>), ApiError> {
     use prisma::user;
 
     let user = state
         .prisma
         .user()
-        .find_unique(user::email::equals(signup.email.clone()))
+        .find_unique(user::email::equals(signup.email.clone().into_inner()))
         .exec()
         .await
         .map_err(Error::from_query)?;
