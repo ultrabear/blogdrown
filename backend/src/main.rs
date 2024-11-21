@@ -14,9 +14,9 @@ use tracing::Level;
 #[allow(unused, warnings)]
 mod prisma;
 
-mod bounded;
 mod api;
 mod auth;
+mod bounded;
 
 #[derive(Clone, Debug)]
 struct BlogDrownState {

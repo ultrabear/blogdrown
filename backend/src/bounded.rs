@@ -20,7 +20,6 @@ impl<const MIN: usize, const MAX: usize> fmt::Display for BoundString<MIN, MAX> 
     }
 }
 
-
 impl<const MIN: usize, const MAX: usize> fmt::Debug for BoundString<MIN, MAX> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         fmt::Debug::fmt(&self.0, f)
