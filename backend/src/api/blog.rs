@@ -1,7 +1,6 @@
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    response::IntoResponse,
     routing::{get, post, put},
     Json, Router,
 };
@@ -125,8 +124,46 @@ async fn update_post(
     todo!()
 }
 
-async fn delete_post(auth: RequireLogin, Path(post_id): Path<Ulid>) -> Result<(), ApiError> {
-    todo!()
+async fn delete_post(
+    auth: RequireLogin,
+    Path(post_id): Path<Ulid>,
+    State(state): State<BlogDrownState>,
+) -> Result<(), ApiError> {
+    use crate::prisma::blog_post::{self, select};
+
+    let post_head = state
+        .prisma
+        .blog_post()
+        .find_unique(blog_post::id::equals(Uuid::from(post_id).to_string()))
+        .select(select!({ owner_id }))
+        .exec()
+        .await
+        .map_err(Error::from_query)?
+        .ok_or_else(Error::not_found)?;
+
+    let owner_id = post_head
+        .owner_id
+        .parse::<Uuid>()
+        .expect("Database stores uuid");
+
+    if Ulid::from(owner_id) != auth.id {
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(Error::new(
+                "You do not have permission to delete this blogpost",
+            )),
+        ));
+    }
+
+    state
+        .prisma
+        .blog_post()
+        .delete(blog_post::id::equals(Uuid::from(post_id).to_string()))
+        .exec()
+        .await
+        .map_err(Error::from_query)?;
+
+    Ok(())
 }
 
 pub fn routes() -> Router<BlogDrownState> {

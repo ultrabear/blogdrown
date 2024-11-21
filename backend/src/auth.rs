@@ -38,8 +38,8 @@ fn scrypt_hash(password: SecretString) -> String {
     use scrypt::Params;
 
     let scrypt_params = Params::new(
-        Params::RECOMMENDED_LOG_N - 4,
-        Params::RECOMMENDED_R + 2,
+        Params::RECOMMENDED_LOG_N - 5,
+        Params::RECOMMENDED_R + 3,
         4, // parallel
         Params::RECOMMENDED_LEN,
     )
@@ -234,19 +234,28 @@ async fn login(
 ) -> Result<(impl IntoResponseParts, Json<AuthUser>), ApiError> {
     use prisma::user;
 
+    let bad_creds = Err((
+        StatusCode::UNAUTHORIZED,
+        Json(Error::new("Bad Credentials")),
+    ));
+
     let user = state
         .prisma
         .user()
         .find_unique(user::email::equals(signup.email.clone().into_inner()))
+        .select(user::select!({
+            id password email created_at username
+        }))
         .exec()
         .await
         .map_err(Error::from_query)?;
 
     let Some(user) = user else {
-        return Err((
-            StatusCode::UNAUTHORIZED,
-            Json(Error::new("Bad Credentials")),
-        ));
+        return bad_creds;
+    };
+
+    let Ok(()) = scrypt_verify(signup.password, user.password) else {
+        return bad_creds;
     };
 
     let ulid_id: Ulid = user.id.parse::<Uuid>().expect("schema is uuid").into();
