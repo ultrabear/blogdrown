@@ -230,7 +230,7 @@ async fn signup(
 
 async fn login(
     State(state): State<BlogDrownState>,
-    ApiJson(signup): ApiJson<Login>,
+    ApiJson(login): ApiJson<Login>,
 ) -> Result<(impl IntoResponseParts, Json<AuthUser>), ApiError> {
     use prisma::user;
 
@@ -242,7 +242,7 @@ async fn login(
     let user = state
         .prisma
         .user()
-        .find_unique(user::email::equals(signup.email.clone().into_inner()))
+        .find_unique(user::email::equals(login.email.clone().into_inner()))
         .select(user::select!({
             id password email created_at username
         }))
@@ -254,7 +254,7 @@ async fn login(
         return bad_creds;
     };
 
-    let Ok(()) = scrypt_verify(signup.password, user.password) else {
+    let Ok(()) = scrypt_verify(login.password, user.password) else {
         return bad_creds;
     };
 
