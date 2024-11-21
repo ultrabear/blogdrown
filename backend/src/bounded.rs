@@ -36,9 +36,7 @@ impl<const MIN: usize, const MAX: usize> BoundString<MIN, MAX> {
     }
 
     pub fn new(s: String) -> Option<Self> {
-        let char_count = s.chars().count();
-
-        if !(MIN..=MAX).contains(&char_count) {
+        if !(MIN..=MAX).contains(&s.len()) {
             return None;
         }
 
@@ -52,7 +50,7 @@ impl serde::de::Expected for ExpectedSize {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(
             f,
-            "string size must be between {} and {} unicode codepoints",
+            "string size must be between {} and {} bytes",
             self.0, self.1
         )
     }
@@ -65,11 +63,11 @@ impl<'de, const MIN: usize, const MAX: usize> Deserialize<'de> for BoundString<M
     {
         let s = String::deserialize(deserializer)?;
 
-        let char_count = s.chars().count();
+        let byte_count = s.len();
 
-        if !(MIN..=MAX).contains(&char_count) {
+        if !(MIN..=MAX).contains(&byte_count) {
             return Err(serde::de::Error::invalid_length(
-                char_count,
+                byte_count,
                 &ExpectedSize(MIN, MAX),
             ));
         }

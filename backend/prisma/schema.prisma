@@ -22,8 +22,8 @@ model User {
   posts       BlogPost[]
   comments    Comment[]
   saved_posts BlogPost[] @relation("SavedPosts")
-  following   User[] @relation("UserFollow")
-  followers   User[] @relation("UserFollow")
+  following   User[]     @relation("UserFollow")
+  followers   User[]     @relation("UserFollow")
 }
 
 model BlogPost {
@@ -37,7 +37,7 @@ model BlogPost {
 
   versions BlogPostVersion[]
   comments Comment[]
-  saves    User[] @relation("SavedPosts")
+  saves    User[]            @relation("SavedPosts")
 
   @@index([owner_id, title_norm])
 }
@@ -55,7 +55,7 @@ model BlogPostVersion {
 }
 
 model Comment {
-  id BigInt @id @default(autoincrement()) @db.BigInt
+  id String @id @db.Uuid
 
   post_id String   @db.Uuid
   post    BlogPost @relation(fields: [post_id], references: [id], onDelete: Cascade)

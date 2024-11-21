@@ -22,6 +22,7 @@ mod bounded;
 struct BlogDrownState {
     prisma: Arc<PrismaClient>,
     jwt_secret: Hmac<Sha384>,
+    production: bool,
 }
 
 use axum::http::Method;
@@ -41,7 +42,20 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
                 .map_err(|_| "missing SECRET_KEY")?
                 .as_bytes(),
         )?,
+        production: env::var("BLOGDROWN_DEV").map_or(true, |s| {
+            if matches!(s.to_lowercase().as_str(), "1" | "true") {
+                false
+            } else {
+                true
+            }
+        }),
     };
+
+    if !state.production {
+        tracing::warn!("running in development mode because BLOGDROWN_DEV was set");
+    } else {
+        tracing::info!("running in production mode");
+    }
 
     let port = env::var("PORT")
         .ok()

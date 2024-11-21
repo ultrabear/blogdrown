@@ -1,12 +1,10 @@
 use axum::{
-    async_trait, debug_handler,
-    extract::{FromRequestParts, State},
-    http::{header::SET_COOKIE, request::Parts, StatusCode},
-    response::{AppendHeaders, IntoResponse, IntoResponseParts},
-    routing::{get, post},
-    Json, Router,
+    async_trait, debug_handler, extract::{FromRequestParts, State}, http::{header::SET_COOKIE, request::Parts, StatusCode}, response::{AppendHeaders, IntoResponse, IntoResponseParts}, routing::{get, post}, Json, RequestPartsExt, Router
 };
-use axum_extra::extract::CookieJar;
+use axum_extra::extract::{
+    cookie::{Cookie, SameSite},
+    CookieJar,
+};
 use jwt::{SignWithKey, VerifyWithKey};
 use prisma_client_rust::or;
 use scrypt::{
@@ -22,6 +20,22 @@ use crate::{
     bounded::BoundString,
     prisma, BlogDrownState,
 };
+
+const SESSION_COOKIE: &str = "session";
+
+fn session_cookie<'a>(value: impl Into<String>, production: bool) -> Cookie<'a> {
+    let mut session_cookie = Cookie::new(SESSION_COOKIE, value.into());
+
+    session_cookie.set_same_site(SameSite::Lax);
+    session_cookie.set_http_only(true);
+    session_cookie.set_path("/");
+
+    if production {
+        session_cookie.set_secure(true);
+    }
+
+    session_cookie
+}
 
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 pub struct RequireLogin {
@@ -86,7 +100,7 @@ impl FromRequestParts<BlogDrownState> for RequireLogin {
 
         let Ok(jar) = CookieJar::from_request_parts(parts, state).await;
 
-        let Some(cookie) = jar.get("session") else {
+        let Some(cookie) = jar.get(SESSION_COOKIE) else {
             return Err(reject());
         };
 
@@ -144,6 +158,7 @@ async fn auth_info(
 }
 
 async fn signup(
+    jar: CookieJar,
     State(state): State<BlogDrownState>,
     ApiJson(signup): ApiJson<Signup>,
 ) -> Result<(impl IntoResponseParts, Created<Json<AuthUser>>), ApiError> {
@@ -220,15 +235,13 @@ async fn signup(
         .expect("RequireLogin is valid serde_json");
 
     Ok((
-        AppendHeaders([(
-            SET_COOKIE,
-            format!("session={token}; HttpOnly; SameSite=Lax; Path=/"),
-        )]),
+        jar.add(session_cookie(token, state.production)),
         Created(authuser!(user)),
     ))
 }
 
 async fn login(
+    jar: CookieJar,
     State(state): State<BlogDrownState>,
     ApiJson(login): ApiJson<Login>,
 ) -> Result<(impl IntoResponseParts, Json<AuthUser>), ApiError> {
@@ -265,16 +278,13 @@ async fn login(
         .expect("RequireLogin is valid serde_json");
 
     Ok((
-        AppendHeaders([(
-            SET_COOKIE,
-            format!("session={token}; HttpOnly; SameSite=Lax; Path=/"),
-        )]),
+        jar.add(session_cookie(token, state.production)),
         authuser!(user),
     ))
 }
 
-async fn logout(jar: CookieJar) -> impl IntoResponse {
-    jar.remove("session")
+async fn logout(jar: CookieJar, State(state): State<BlogDrownState>) -> impl IntoResponse {
+    jar.remove(session_cookie("", state.production))
 }
 
 pub fn routes() -> Router<BlogDrownState> {

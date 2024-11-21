@@ -198,6 +198,22 @@ pub struct GetPostRes {
     created_at: DateTime<FixedOffset>,
     updated_at: DateTime<FixedOffset>,
     user: MinUser,
+    comments: Vec<GetComment>,
+}
+
+#[derive(Deserialize)]
+pub struct PostComment {
+    body: String,
+}
+
+#[derive(Serialize)]
+pub struct GetComment {
+    id: Ulid,
+    post_id: Ulid,
+    author: MinUser,
+    body: String,
+    created_at: DateTime<FixedOffset>,
+    updated_at: DateTime<FixedOffset>,
 }
 
 #[derive(Deserialize)]
