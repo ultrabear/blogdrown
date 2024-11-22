@@ -22,6 +22,14 @@ export type NewBlogPost = { title: string; body: string };
 export type NewBlogPostRes = IdAndTimestamps & {
 	title_norm: string;
 };
+
+export type GetAllPostsItem = IdAndTimestamps & {
+	title_norm: string;
+	title: string;
+	partial_body: string;
+	user: MinUser;
+};
+
 export type GetPostRes = IdAndTimestamps & {
 	title_norm: string;
 	title: string;
@@ -99,6 +107,8 @@ async function notNull<T>(v: Promise<T | null>): Promise<T> {
 	return resolved;
 }
 
+function unused<T>(_: T) {}
+
 async function datalessfetch<T>(
 	route: string,
 	method: "GET" | "DELETE" | "POST" | "PUT",
@@ -113,7 +123,8 @@ async function datalessfetch<T>(
 
 	try {
 		return await resp.json();
-	} catch (_) {
+	} catch (e) {
+		unused(e);
 		return null;
 	}
 }
@@ -141,6 +152,9 @@ export const api = {
 			return await notNull(
 				datalessfetch(`/blogs/one?=${encodeURIComponent(blogId)}`, "GET"),
 			);
+		},
+		getAll: async (): Promise<GetAllPostsItem[]> => {
+			return await notNull(datalessfetch("/blogs", "GET"));
 		},
 		update: async (
 			blogId: string,
