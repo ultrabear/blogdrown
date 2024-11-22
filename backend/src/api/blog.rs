@@ -16,8 +16,8 @@ use crate::{
 };
 
 use super::{
-    ApiError, ApiJson, GetPost, GetPostRes, IdAndTimestamps, NewBlogPost, NewBlogPostRes,
-    PostComment, UpdateBlogPost, Updated,
+    ApiError, ApiJson, GetAllPostsItem, GetPost, GetPostRes, IdAndTimestamps, NewBlogPost,
+    NewBlogPostRes, PostComment, UpdateBlogPost, Updated,
 };
 
 fn title_normalize(s: &str) -> String {
@@ -247,12 +247,111 @@ async fn new_comment(
     State(state): State<BlogDrownState>,
     ApiJson(comment): ApiJson<PostComment>,
 ) -> Result<Json<IdAndTimestamps>, ApiError> {
-    todo!()
+    use crate::prisma::{blog_post, comment, user};
+
+    let id = Uuid::from(post_id);
+
+    let post = state
+        .prisma
+        .blog_post()
+        .find_unique(blog_post::id::equals(id.to_string()))
+        .exec()
+        .await
+        .map_err(Error::from_query)?
+        .ok_or_else(Error::not_found)?;
+
+    let id = Uuid::now_v7();
+
+    let comment = state
+        .prisma
+        .comment()
+        .create(
+            id.to_string(),
+            blog_post::id::equals(post.id),
+            user::id::equals(auth.uuid()),
+            comment.body.into_inner(),
+            vec![],
+        )
+        .select(comment::select!({ created_at }))
+        .exec()
+        .await
+        .map_err(Error::from_query)?;
+
+    Ok(Json(IdAndTimestamps {
+        id: Ulid::from(id),
+        created_at: comment.created_at,
+        updated_at: comment.created_at,
+    }))
+}
+
+/// Copied from rust stdlib unstable(feature = "round_char_boundary")
+pub fn floor_char_boundary(s: &str, index: usize) -> usize {
+    if index >= s.len() {
+        s.len()
+    } else {
+        let lower_bound = index.saturating_sub(3);
+        let new_index = s.as_bytes()[lower_bound..=index]
+            .iter()
+            // this is bit magic equivalent to b < 128 || b >= 192
+            .rposition(|b| (*b as i8) >= -0x40);
+
+        // SAFETY: we know that the character boundary will be within four bytes
+        unsafe { lower_bound + new_index.unwrap_unchecked() }
+    }
+}
+
+async fn get_all_posts(
+    State(state): State<BlogDrownState>,
+) -> Result<Json<Vec<GetAllPostsItem>>, ApiError> {
+    use crate::prisma::{blog_post, blog_post_version, user};
+    use prisma_client_rust::Direction;
+
+    let posts = state
+        .prisma
+        .blog_post()
+        .find_many(vec![])
+        .order_by(blog_post::created_at::order(Direction::Desc))
+        .include(blog_post::include!({ versions(vec![]).order_by(blog_post_version::created_at::order(Direction::Desc)).take(1) owner }))
+        .exec().await.map_err(Error::from_query)?;
+
+    Ok(Json(
+        posts
+            .into_iter()
+            .filter_map(|mut p| {
+                let Some(mut latest) = p.versions.pop() else {
+                    tracing::warn!(
+                        "Database integrity: BlogPost({}) exists but has no version history",
+                        expect_uuid(&p.id)
+                    );
+
+                    return None;
+                };
+
+                let bound = floor_char_boundary(&latest.text, 100);
+                latest.text.truncate(bound);
+
+                Some(GetAllPostsItem {
+                    id_ts: IdAndTimestamps {
+                        id: expect_uuid(&p.id),
+                        created_at: p.created_at,
+                        updated_at: latest.created_at,
+                    },
+                    title: p.title,
+                    title_norm: p.title_norm,
+                    user: MinUser {
+                        id: expect_uuid(&p.owner.id),
+                        username: BoundString::new_unchecked(p.owner.username),
+                    },
+                    partial_body: latest.text,
+                })
+            })
+            .collect(),
+    ))
 }
 
 pub fn routes() -> Router<BlogDrownState> {
     Router::new()
-        .route("/", post(create_post))
+        .route("/", post(create_post).get(get_all_posts))
         .route("/:post_id", put(update_post).delete(delete_post))
         .route("/:post_id/comments", post(new_comment))
         .route("/one", get(get_post))

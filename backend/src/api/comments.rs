@@ -56,7 +56,7 @@ async fn update_comment(
         tx.1.comment()
             .update(
                 comment::id::equals(Uuid::from(comment_id).to_string()),
-                vec![comment::text::set(edit.body)],
+                vec![comment::text::set(edit.body.into_inner())],
             )
             .select(select!({ updated_at }))
             .exec()

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{auth, bounded::BoundString, BlogDrownState};
+use crate::{auth, bounded::BoundString, prisma, BlogDrownState};
 use chrono::{DateTime, FixedOffset};
 use prisma_client_rust::{
     prisma_errors::query_engine::{RecordNotFound, UniqueKeyViolation},
@@ -199,6 +199,16 @@ pub struct GetPost {
 }
 
 #[derive(Serialize)]
+pub struct GetAllPostsItem {
+    #[serde(flatten)]
+    id_ts: IdAndTimestamps,
+    title_norm: String,
+    title: String,
+    partial_body: String,
+    user: MinUser,
+}
+
+#[derive(Serialize)]
 pub struct GetPostRes {
     #[serde(flatten)]
     id_ts: IdAndTimestamps,
@@ -216,7 +226,7 @@ pub struct UpdateBlogPost {
 
 #[derive(Deserialize)]
 pub struct PostComment {
-    body: String,
+    body: BoundString<4, 2000>,
 }
 
 #[derive(Serialize)]
