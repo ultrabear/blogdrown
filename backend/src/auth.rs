@@ -1,10 +1,10 @@
 use axum::{
-    async_trait, debug_handler,
+    async_trait,
     extract::{FromRequestParts, State},
-    http::{header::SET_COOKIE, request::Parts, StatusCode},
-    response::{AppendHeaders, IntoResponse, IntoResponseParts},
+    http::{request::Parts, StatusCode},
+    response::{IntoResponse, IntoResponseParts},
     routing::{get, post},
-    Json, RequestPartsExt, Router,
+    Json, Router,
 };
 use axum_extra::extract::{
     cookie::{Cookie, SameSite},

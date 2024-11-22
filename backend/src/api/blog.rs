@@ -303,7 +303,7 @@ pub fn floor_char_boundary(s: &str, index: usize) -> usize {
 async fn get_all_posts(
     State(state): State<BlogDrownState>,
 ) -> Result<Json<Vec<GetAllPostsItem>>, ApiError> {
-    use crate::prisma::{blog_post, blog_post_version, user};
+    use crate::prisma::{blog_post, blog_post_version};
     use prisma_client_rust::Direction;
 
     let posts = state

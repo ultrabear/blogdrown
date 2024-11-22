@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{auth, bounded::BoundString, prisma, BlogDrownState};
+use crate::{auth, bounded::BoundString, BlogDrownState};
 use chrono::{DateTime, FixedOffset};
 use prisma_client_rust::{
     prisma_errors::query_engine::{RecordNotFound, UniqueKeyViolation},
