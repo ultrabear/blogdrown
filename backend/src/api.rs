@@ -19,6 +19,7 @@ use axum::{
 use ulid::Ulid;
 
 mod blog;
+mod comments;
 
 #[derive(Serialize, Default)]
 pub struct Error {
@@ -138,6 +139,7 @@ where
     }
 }
 
+// Auth
 type Username = BoundString<6, 64>;
 type Email = BoundString<2, 128>;
 
@@ -168,6 +170,14 @@ pub struct Signup {
     pub password: SecretString,
 }
 
+// Posts / Comments
+#[derive(Serialize)]
+pub struct IdAndTimestamps {
+    id: Ulid,
+    created_at: DateTime<FixedOffset>,
+    updated_at: DateTime<FixedOffset>,
+}
+
 type BlogPostBody = BoundString<32, 50_000>;
 type BlogPostTitle = BoundString<2, 128>;
 
@@ -179,9 +189,8 @@ pub struct NewBlogPost {
 
 #[derive(Serialize)]
 pub struct NewBlogPostRes {
-    id: Ulid,
+    id_ts: IdAndTimestamps,
     title_norm: String,
-    created_at: DateTime<FixedOffset>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -191,14 +200,18 @@ pub struct GetPost {
 
 #[derive(Serialize)]
 pub struct GetPostRes {
-    id: Ulid,
+    #[serde(flatten)]
+    id_ts: IdAndTimestamps,
     title_norm: String,
     title: BlogPostTitle,
     body: BlogPostBody,
-    created_at: DateTime<FixedOffset>,
-    updated_at: DateTime<FixedOffset>,
     user: MinUser,
     comments: Vec<GetComment>,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateBlogPost {
+    body: BlogPostBody,
 }
 
 #[derive(Deserialize)]
@@ -208,17 +221,15 @@ pub struct PostComment {
 
 #[derive(Serialize)]
 pub struct GetComment {
-    id: Ulid,
+    id_ts: IdAndTimestamps,
     post_id: Ulid,
     author: MinUser,
     body: String,
-    created_at: DateTime<FixedOffset>,
-    updated_at: DateTime<FixedOffset>,
 }
 
-#[derive(Deserialize)]
-pub struct UpdateBlogPost {
-    body: BlogPostBody,
+#[derive(Serialize)]
+pub struct Updated {
+    updated_at: DateTime<FixedOffset>,
 }
 
 pub fn api_routes() -> Router<BlogDrownState> {
@@ -226,6 +237,7 @@ pub fn api_routes() -> Router<BlogDrownState> {
         "/v1",
         Router::new()
             .nest("/auth", auth::routes())
-            .nest("/blogs", blog::routes()),
+            .nest("/blogs", blog::routes())
+            .nest("/comments", comments::routes()),
     )
 }

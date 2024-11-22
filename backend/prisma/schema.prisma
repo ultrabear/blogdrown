@@ -66,7 +66,7 @@ model Comment {
   text String
 
   created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
   @@index([post_id, created_at])
   @@index([author_id])

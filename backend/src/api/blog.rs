@@ -11,10 +11,14 @@ use crate::{
     api::{Created, Error, GetComment, MinUser},
     auth::RequireLogin,
     bounded::BoundString,
+    prisma::blog_post_version,
     BlogDrownState,
 };
 
-use super::{ApiError, ApiJson, GetPost, GetPostRes, NewBlogPost, NewBlogPostRes, UpdateBlogPost};
+use super::{
+    ApiError, ApiJson, GetPost, GetPostRes, IdAndTimestamps, NewBlogPost, NewBlogPostRes,
+    PostComment, UpdateBlogPost, Updated,
+};
 
 fn title_normalize(s: &str) -> String {
     s.to_lowercase().replace(' ', "_")
@@ -48,7 +52,7 @@ async fn create_post(
         .await
         .map_err(Error::from_query)?;
 
-    state
+    let latest = state
         .prisma
         .blog_post_version()
         .create(
@@ -61,9 +65,12 @@ async fn create_post(
         .map_err(Error::from_query)?;
 
     Ok(Created::json(NewBlogPostRes {
-        id: Ulid::from(id),
+        id_ts: IdAndTimestamps {
+            id: Ulid::from(id),
+            created_at: post_head.created_at,
+            updated_at: latest.created_at,
+        },
         title_norm: norm,
-        created_at: post_head.created_at,
     }))
 }
 
@@ -108,28 +115,35 @@ async fn get_post(
     };
 
     Ok(Json(GetPostRes {
-        id: post_id,
+        id_ts: IdAndTimestamps {
+            id: post_id,
+            created_at: post.created_at,
+            updated_at: latest.created_at,
+        },
         title: BoundString::new_unchecked(post.title),
         title_norm: post.title_norm,
-        created_at: post.created_at,
-        updated_at: latest.created_at,
         body: BoundString::new_unchecked(latest.text),
         user: MinUser {
             id: Ulid::from(post.owner.id.parse::<Uuid>().expect("database stores uuid")),
             username: BoundString::new_unchecked(post.owner.username),
         },
-        comments: post.comments.into_iter().map(|c| GetComment {
-            id: expect_uuid(&c.id),
-            post_id,
-            body: c.text,
-            author: MinUser {
-                id: expect_uuid(&c.author.id),
-                username: BoundString::new_unchecked(c.author.username),
-        
-            },
-            created_at: c.created_at,
-            updated_at: c.updated_at,
-        }).collect(),
+        comments: post
+            .comments
+            .into_iter()
+            .map(|c| GetComment {
+                id_ts: IdAndTimestamps {
+                    id: expect_uuid(&c.id),
+                    created_at: c.created_at,
+                    updated_at: c.updated_at,
+                },
+                post_id,
+                body: c.text,
+                author: MinUser {
+                    id: expect_uuid(&c.author.id),
+                    username: BoundString::new_unchecked(c.author.username),
+                },
+            })
+            .collect(),
     }))
 }
 
@@ -138,7 +152,7 @@ async fn update_post(
     Path(post_id): Path<Ulid>,
     State(state): State<BlogDrownState>,
     ApiJson(update): ApiJson<UpdateBlogPost>,
-) -> Result<(), ApiError> {
+) -> Result<Json<Updated>, ApiError> {
     use crate::prisma::blog_post::{self, select};
 
     let post_id = Uuid::from(post_id).to_string();
@@ -167,7 +181,7 @@ async fn update_post(
         ));
     };
 
-    state
+    let timestamp = state
         .prisma
         .blog_post_version()
         .create(
@@ -175,11 +189,14 @@ async fn update_post(
             update.body.into_inner(),
             vec![],
         )
+        .select(blog_post_version::select!({ created_at }))
         .exec()
         .await
         .map_err(Error::from_query)?;
 
-    Ok(())
+    Ok(Json(Updated {
+        updated_at: timestamp.created_at,
+    }))
 }
 
 async fn delete_post(
@@ -224,9 +241,19 @@ async fn delete_post(
     Ok(())
 }
 
+async fn new_comment(
+    auth: RequireLogin,
+    Path(post_id): Path<Ulid>,
+    State(state): State<BlogDrownState>,
+    ApiJson(comment): ApiJson<PostComment>,
+) -> Result<Json<IdAndTimestamps>, ApiError> {
+    todo!()
+}
+
 pub fn routes() -> Router<BlogDrownState> {
     Router::new()
         .route("/", post(create_post))
         .route("/:post_id", put(update_post).delete(delete_post))
+        .route("/:post_id/comments", post(new_comment))
         .route("/one", get(get_post))
 }
