@@ -17,7 +17,57 @@ async fn update_comment(
     Path(comment_id): Path<Ulid>,
     ApiJson(edit): ApiJson<PostComment>,
 ) -> Result<Json<Updated>, ApiError> {
-    todo!()
+    use crate::prisma::comment::{self, select};
+
+    let tx = state
+        .prisma
+        ._transaction()
+        .begin()
+        .await
+        .map_err(Error::from_query)?;
+
+    let comment =
+        tx.1.comment()
+            .find_unique(comment::id::equals(Uuid::from(comment_id).to_string()))
+            .select(select!({ author_id }))
+            .exec()
+            .await
+            .map_err(Error::from_query)?
+            .ok_or_else(Error::not_found)?;
+
+    let author_id = Ulid::from(
+        comment
+            .author_id
+            .parse::<Uuid>()
+            .expect("database schema is uuid"),
+    );
+
+    let true = author_id == auth.id else {
+        tx.0.rollback(tx.1).await.map_err(Error::from_query)?;
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(Error::new(
+                "You do not have permission to edit this comment",
+            )),
+        ));
+    };
+
+    let comment =
+        tx.1.comment()
+            .update(
+                comment::id::equals(Uuid::from(comment_id).to_string()),
+                vec![comment::text::set(edit.body)],
+            )
+            .select(select!({ updated_at }))
+            .exec()
+            .await
+            .map_err(Error::from_query)?;
+
+    tx.0.commit(tx.1).await.map_err(Error::from_query)?;
+
+    Ok(Json(Updated {
+        updated_at: comment.updated_at,
+    }))
 }
 
 async fn delete_comment(
