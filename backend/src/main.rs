@@ -7,7 +7,8 @@ use hmac::{Hmac, Mac};
 use sha2::Sha384;
 use tower_http::{
     cors::{Any, CorsLayer},
-    trace::{DefaultOnRequest, TraceLayer},
+    services::{ServeDir, ServeFile},
+    trace::{DefaultOnResponse, TraceLayer},
 };
 use tracing::Level;
 
@@ -71,13 +72,17 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
 
     let routes = Router::new()
         .nest("/api", api::api_routes())
+        .fallback_service(
+            ServeDir::new("../frontend/dist")
+                .not_found_service(ServeFile::new("../frontend/dist/index.html")),
+        )
         .with_state(state)
         .layer(
             CorsLayer::new()
                 .allow_methods([Method::GET, Method::POST, Method::PUT])
                 .allow_origin(Any),
         )
-        .layer(TraceLayer::new_for_http().on_request(DefaultOnRequest::new().level(Level::INFO)));
+        .layer(TraceLayer::new_for_http().on_response(DefaultOnResponse::new().level(Level::INFO)));
 
     axum::serve(listener, routes).await?;
 
