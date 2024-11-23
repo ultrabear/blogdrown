@@ -1,0 +1,9 @@
+**/node_modules
+**/target
+**/dist
+**/src/prisma.rs
+**/.gitignore
+**/.env
+**/.DS_Store
+**/dist-ssr
+

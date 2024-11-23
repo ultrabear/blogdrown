@@ -8,6 +8,7 @@ use sha2::Sha384;
 use tower_http::{
     cors::{Any, CorsLayer},
     services::{ServeDir, ServeFile},
+    set_status::SetStatus,
     trace::{DefaultOnResponse, TraceLayer},
 };
 use tracing::Level;
@@ -29,6 +30,19 @@ struct BlogDrownState {
 use axum::http::Method;
 use axum::Router;
 use prisma::PrismaClient;
+
+fn serve_frontend() -> ServeDir<SetStatus<ServeFile>> {
+    ServeDir::new("../frontend/dist")
+        .precompressed_br()
+        .precompressed_gzip()
+        .precompressed_zstd()
+        .not_found_service(
+            ServeFile::new("../frontend/dist/index.html")
+                .precompressed_zstd()
+                .precompressed_gzip()
+                .precompressed_br(),
+        )
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error>> {
@@ -72,10 +86,7 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
 
     let routes = Router::new()
         .nest("/api", api::api_routes())
-        .fallback_service(
-            ServeDir::new("../frontend/dist")
-                .not_found_service(ServeFile::new("../frontend/dist/index.html")),
-        )
+        .fallback_service(serve_frontend())
         .with_state(state)
         .layer(
             CorsLayer::new()
