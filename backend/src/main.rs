@@ -9,9 +9,8 @@ use tower_http::{
     cors::{Any, CorsLayer},
     services::{ServeDir, ServeFile},
     set_status::SetStatus,
-    trace::{DefaultOnResponse, TraceLayer},
+    trace::TraceLayer,
 };
-use tracing::Level;
 
 #[allow(unused, warnings)]
 mod prisma;
@@ -19,6 +18,7 @@ mod prisma;
 mod api;
 mod auth;
 mod bounded;
+mod logger;
 
 #[derive(Clone, Debug)]
 struct BlogDrownState {
@@ -29,6 +29,7 @@ struct BlogDrownState {
 
 use axum::http::Method;
 use axum::Router;
+use logger::response_logger;
 use prisma::PrismaClient;
 
 fn serve_frontend() -> ServeDir<SetStatus<ServeFile>> {
@@ -93,7 +94,8 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
                 .allow_methods([Method::GET, Method::POST, Method::PUT])
                 .allow_origin(Any),
         )
-        .layer(TraceLayer::new_for_http().on_response(DefaultOnResponse::new().level(Level::INFO)));
+        .layer(TraceLayer::new_for_http())
+        .layer(axum::middleware::from_fn(response_logger));
 
     axum::serve(listener, routes).await?;
 
