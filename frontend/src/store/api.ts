@@ -107,8 +107,6 @@ async function notNull<T>(v: Promise<T | null>): Promise<T> {
 	return resolved;
 }
 
-function unused<T>(_: T) {}
-
 async function datalessfetch<T>(
 	route: string,
 	method: "GET" | "DELETE" | "POST" | "PUT",
@@ -123,8 +121,7 @@ async function datalessfetch<T>(
 
 	try {
 		return await resp.json();
-	} catch (e) {
-		unused(e);
+	} catch (_e) {
 		return null;
 	}
 }
