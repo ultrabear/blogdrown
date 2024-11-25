@@ -246,7 +246,7 @@ async fn new_comment(
     Path(post_id): Path<Ulid>,
     State(state): State<BlogDrownState>,
     ApiJson(comment): ApiJson<PostComment>,
-) -> Result<Json<IdAndTimestamps>, ApiError> {
+) -> Result<Created<Json<IdAndTimestamps>>, ApiError> {
     use crate::prisma::{blog_post, comment, user};
 
     let id = Uuid::from(post_id);
@@ -277,7 +277,7 @@ async fn new_comment(
         .await
         .map_err(Error::from_query)?;
 
-    Ok(Json(IdAndTimestamps {
+    Ok(Created::json(IdAndTimestamps {
         id: Ulid::from(id),
         created_at: comment.created_at,
         updated_at: comment.created_at,
