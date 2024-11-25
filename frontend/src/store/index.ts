@@ -1,8 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import sessionReducer from "./session";
+import blogPostReducer from "./blogs";
+import userReducer from './users';
 
 export const store = configureStore({
-	reducer: {},
+	reducer: {
+		session: sessionReducer,
+		blogPosts: blogPostReducer,
+		users: userReducer,
+	},
 });
 
 export type RootState = ReturnType<typeof store.getState>;

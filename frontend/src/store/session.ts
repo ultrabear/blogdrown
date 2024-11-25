@@ -8,3 +8,5 @@ export const sessionSlice = createSlice({
 	initialState,
 	reducers: {},
 });
+
+export default sessionSlice.reducer;

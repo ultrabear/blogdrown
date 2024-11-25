@@ -22,6 +22,7 @@ export type BlogPost = {
 	created_at: string;
 	updated_at: string;
 	text: string;
+	partial: boolean;
 };
 
 export type BlogPostSlice = Record<string, BlogPost>;
