@@ -178,8 +178,8 @@ pub struct IdAndTimestamps {
     updated_at: DateTime<FixedOffset>,
 }
 
-type BlogPostBody = BoundString<32, 50_000>;
-type BlogPostTitle = BoundString<2, 128>;
+type BlogPostBody = BoundString<16, 500_000>;
+type BlogPostTitle = BoundString<2, 192>;
 
 #[derive(Deserialize)]
 pub struct NewBlogPost {
@@ -189,6 +189,7 @@ pub struct NewBlogPost {
 
 #[derive(Serialize)]
 pub struct NewBlogPostRes {
+    #[serde(flatten)]
     id_ts: IdAndTimestamps,
     title_norm: String,
 }
@@ -226,11 +227,12 @@ pub struct UpdateBlogPost {
 
 #[derive(Deserialize)]
 pub struct PostComment {
-    body: BoundString<4, 2000>,
+    body: BoundString<4, 4000>,
 }
 
 #[derive(Serialize)]
 pub struct GetComment {
+    #[serde(flatten)]
     id_ts: IdAndTimestamps,
     post_id: Ulid,
     author: MinUser,

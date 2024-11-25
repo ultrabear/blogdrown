@@ -10,6 +10,7 @@ use axum_extra::extract::{
     cookie::{Cookie, SameSite},
     CookieJar,
 };
+use chrono::{DateTime, FixedOffset, TimeDelta, Utc};
 use jwt::{SignWithKey, VerifyWithKey};
 use prisma_client_rust::or;
 use scrypt::{
@@ -45,6 +46,7 @@ fn session_cookie<'a>(value: impl Into<String>, production: bool) -> Cookie<'a> 
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 pub struct RequireLogin {
     pub id: ulid::Ulid,
+    pub creat: DateTime<Utc>,
 }
 
 impl RequireLogin {
@@ -53,15 +55,19 @@ impl RequireLogin {
     }
 }
 
-fn scrypt_hash(password: SecretString) -> String {
+fn scrypt_hash(password: SecretString, production: bool) -> String {
     use scrypt::Params;
 
-    let scrypt_params = Params::new(
-        Params::RECOMMENDED_LOG_N - 5,
-        Params::RECOMMENDED_R + 3,
-        4, // parallel
-        Params::RECOMMENDED_LEN,
-    )
+    let scrypt_params = (if production {
+        Params::new(
+            Params::RECOMMENDED_LOG_N - 3,
+            Params::RECOMMENDED_R + 2,
+            Params::RECOMMENDED_P + 1,
+            Params::RECOMMENDED_LEN,
+        )
+    } else {
+        Params::new(5, 5, Params::RECOMMENDED_P, Params::RECOMMENDED_LEN)
+    })
     .expect("valid config");
 
     let salt = SaltString::generate(&mut rand::thread_rng());
@@ -113,6 +119,10 @@ impl FromRequestParts<BlogDrownState> for RequireLogin {
             .value()
             .verify_with_key(&state.jwt_secret)
             .map_err(|_| reject())?;
+
+        if (login.creat + TimeDelta::days(30)) < Utc::now() {
+            return Err(reject());
+        }
 
         let exists = state
             .prisma
@@ -225,7 +235,7 @@ async fn signup(
             Uuid::now_v7().to_string(),
             signup.username.into_inner(),
             signup.email.into_inner(),
-            scrypt_hash(signup.password),
+            scrypt_hash(signup.password, state.production),
             vec![],
         )
         .select(user::select!({id email username created_at}))
@@ -235,9 +245,12 @@ async fn signup(
 
     let ulid_id: Ulid = user.id.parse::<Uuid>().expect("schema is uuid").into();
 
-    let token = RequireLogin { id: ulid_id }
-        .sign_with_key(&state.jwt_secret)
-        .expect("RequireLogin is valid serde_json");
+    let token = RequireLogin {
+        id: ulid_id,
+        creat: Utc::now(),
+    }
+    .sign_with_key(&state.jwt_secret)
+    .expect("RequireLogin is valid serde_json");
 
     Ok((
         jar.add(session_cookie(token, state.production)),
@@ -278,9 +291,12 @@ async fn login(
 
     let ulid_id: Ulid = user.id.parse::<Uuid>().expect("schema is uuid").into();
 
-    let token = RequireLogin { id: ulid_id }
-        .sign_with_key(&state.jwt_secret)
-        .expect("RequireLogin is valid serde_json");
+    let token = RequireLogin {
+        id: ulid_id,
+        creat: Utc::now(),
+    }
+    .sign_with_key(&state.jwt_secret)
+    .expect("RequireLogin is valid serde_json");
 
     Ok((
         jar.add(session_cookie(token, state.production)),
