@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
-import sessionReducer from "./session";
 import blogPostReducer from "./blogs";
-import userReducer from './users';
+import sessionReducer from "./session";
+import userReducer from "./users";
 
 export const store = configureStore({
 	reducer: {

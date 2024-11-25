@@ -1,10 +1,10 @@
 import {
+	type PayloadAction,
 	createAsyncThunk,
 	createSlice,
-	type PayloadAction,
 } from "@reduxjs/toolkit";
+import { type GetAllPostsItem, api } from "./api";
 import type { BlogPost, BlogPostSlice } from "./types";
-import { api, type GetAllPostsItem } from "./api";
 import { userSlice } from "./users";
 
 function bulkPostToStore(b: GetAllPostsItem): BlogPost {
@@ -25,8 +25,8 @@ export const getAll = createAsyncThunk(
 	async (_: undefined, { dispatch }) => {
 		const res = await api.blogs.getAll();
 
-		dispatch(blogPostSlice.actions.loadPosts(res.map(bulkPostToStore)))
-		dispatch(userSlice.actions.addUsers(res.map(p => p.user)));
+		dispatch(blogPostSlice.actions.loadPosts(res.map(bulkPostToStore)));
+		dispatch(userSlice.actions.addUsers(res.map((p) => p.user)));
 	},
 );
 
