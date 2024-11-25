@@ -1,42 +1,42 @@
 body {
-  background-color: var(--theme-background);
-  color: var(--theme-text);
-  font: 1.2em sans-serif;
-  margin: 10px;
+	background-color: var(--theme-background);
+	color: var(--theme-text);
+	font: 1.2em sans-serif;
+	margin: 10px;
 }
 
 @media (prefers-color-scheme: light) {
-  html {
-    --theme-background: #a2a67c;
-    --theme-text: #000;
-    --theme-highlight: #004cff;
-  }
+	html {
+		--theme-background: #a2a67c;
+		--theme-text: #000;
+		--theme-highlight: #004cff;
+	}
 }
 
 @media (prefers-color-scheme: dark) {
-  html {
-    --theme-background: #000;
-    --theme-text: #d5dbdb;
-    --theme-highlight: #0000c8;
-  }
+	html {
+		--theme-background: #000;
+		--theme-text: #d5dbdb;
+		--theme-highlight: #0000c8;
+	}
 }
 
 #Layout {
-  margin: auto;
-  width: 780px;
+	margin: auto;
+	width: 780px;
 }
 
 @media (max-width: 800px) {
-  #Layout {
-    width: auto;
-  }
+	#Layout {
+		width: auto;
+	}
 }
 
 a {
-  text-decoration: none;
-  color: var(--theme-text);
+	text-decoration: none;
+	color: var(--theme-text);
 }
 
 .link a:hover {
-  text-decoration: underline var(--theme-highlight);
+	text-decoration: underline var(--theme-highlight);
 }

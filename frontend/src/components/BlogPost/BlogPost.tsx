@@ -1,7 +1,4 @@
 function BlogPost() {
-
-
-
 	return <></>;
 }
 

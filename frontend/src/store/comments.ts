@@ -1,5 +1,5 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { CommentSlice, Comment } from "./types";
+import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
+import type { Comment, CommentSlice } from "./types";
 
 const initialState: CommentSlice = {};
 

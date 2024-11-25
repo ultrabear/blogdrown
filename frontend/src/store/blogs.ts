@@ -3,7 +3,7 @@ import {
 	createAsyncThunk,
 	createSlice,
 } from "@reduxjs/toolkit";
-import { type GetAllPostsItem, ApiError, type GetPostRes, api } from "./api";
+import { ApiError, type GetAllPostsItem, type GetPostRes, api } from "./api";
 import type { BlogPost, BlogPostSlice } from "./types";
 import { userSlice } from "./users";
 
