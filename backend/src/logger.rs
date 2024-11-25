@@ -1,5 +1,4 @@
 use core::fmt;
-use std::fmt::Display;
 
 use axum::http::{Method, StatusCode};
 use axum::{extract::Request, middleware::Next, response::Response};
