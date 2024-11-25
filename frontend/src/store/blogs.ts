@@ -3,20 +3,31 @@ import {
 	createAsyncThunk,
 	createSlice,
 } from "@reduxjs/toolkit";
-import { type GetAllPostsItem, api } from "./api";
+import { type GetAllPostsItem, ApiError, type GetPostRes, api } from "./api";
 import type { BlogPost, BlogPostSlice } from "./types";
 import { userSlice } from "./users";
 
 function bulkPostToStore(b: GetAllPostsItem): BlogPost {
+	const { user, title_norm, partial_body, ...rest } = b;
+
 	return {
-		id: b.id,
+		...rest,
 		partial: true,
-		text: b.partial_body,
-		title: b.title,
-		norm: b.title_norm,
-		owner_id: b.user.id,
-		created_at: b.created_at,
-		updated_at: b.updated_at,
+		text: partial_body,
+		norm: title_norm,
+		owner_id: user.id,
+	};
+}
+
+function singlePostToStore(b: GetPostRes): BlogPost {
+	const { user, title_norm, body, comments: _, ...rest } = b;
+
+	return {
+		...rest,
+		partial: false,
+		norm: title_norm,
+		text: body,
+		owner_id: user.id,
 	};
 }
 
@@ -27,6 +38,24 @@ export const getAll = createAsyncThunk(
 
 		dispatch(blogPostSlice.actions.loadPosts(res.map(bulkPostToStore)));
 		dispatch(userSlice.actions.addUsers(res.map((p) => p.user)));
+	},
+);
+
+export const getOneBlog = createAsyncThunk(
+	"blogPosts/getOneBlog",
+	async (id: string, { dispatch }): Promise<ApiError | undefined> => {
+		try {
+			const res = await api.blogs.getOne(id);
+
+			dispatch(blogPostSlice.actions.loadPost(singlePostToStore(res)));
+			dispatch(userSlice.actions.addUsers([res.user]));
+			// TODO commentsSlice
+		} catch (e) {
+			if (e instanceof ApiError) {
+				return e;
+			}
+			throw e;
+		}
 	},
 );
 
@@ -41,7 +70,17 @@ export const blogPostSlice = createSlice({
 		},
 		loadPosts: (state, action: PayloadAction<BlogPost[]>) => {
 			for (const post of action.payload) {
-				state[post.id] = post;
+				if (post.partial && post.id in state && !state[post.id]!.partial) {
+					const oldBody = state[post.id]!.text;
+
+					state[post.id] = post;
+
+					if (post.text.startsWith(oldBody)) {
+						state[post.id]!.text = oldBody;
+					}
+				} else {
+					state[post.id] = post;
+				}
 			}
 		},
 	},

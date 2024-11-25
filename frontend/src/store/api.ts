@@ -56,7 +56,7 @@ export type Updated = {
 	updated_at: string;
 };
 
-class ApiError {
+export class ApiError {
 	constructor(
 		public err: Error,
 		public status: number,

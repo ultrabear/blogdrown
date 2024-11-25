@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store";
 import type { RootState } from "../../store";
 import { getAll } from "../../store/blogs";
+import "./index.css";
+import { Link } from "react-router-dom";
 
 type Ordering = -1 | 0 | 1;
 
@@ -40,9 +42,13 @@ function BlogTile({ blogId }: { blogId: string }) {
 	}
 
 	return (
-		<div className="BlogTile">
-			User: {author.username} Post: {blogPost.text}
-		</div>
+		<Link to={`/blog/${blogPost.id}`}>
+			<article className="BlogTile">
+				<div className="title">{blogPost.title}</div>
+				<div className="user">{author.username}</div>
+				<p>{blogPost.text}</p>
+			</article>
+		</Link>
 	);
 }
 

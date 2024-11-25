@@ -1,6 +1,7 @@
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import HomePage from "./components/HomePage/HomePage";
 import Navigation from "./components/Navigation/Navigation";
+import BlogPost from "./components/BlogPost/BlogPost";
 
 function Layout() {
 	return (
@@ -18,6 +19,16 @@ const router = createBrowserRouter([
 			{
 				path: "/",
 				element: <HomePage />,
+			},
+			{
+				path: "blog",
+				element: <Outlet />,
+				children: [
+					{
+						path: ":postId",
+						element: <BlogPost />,
+					},
+				],
 			},
 		],
 	},
