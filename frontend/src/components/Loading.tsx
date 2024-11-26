@@ -11,7 +11,7 @@ export function LoadingText({ text }: { text?: string }) {
 
 	return (
 		<div className="Loading Text">
-			{text ? text : "Loading component"}
+			{text != null ? text : "Loading component"}
 			{frames[animation]!}
 		</div>
 	);

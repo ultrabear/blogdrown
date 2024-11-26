@@ -15,6 +15,10 @@
 
 			color: var(--theme-weaktext);
 
+			& a {
+				color: var(--theme-weaktext);
+			}
+
 			.date {
 				font-size: 0.8em;
 			}

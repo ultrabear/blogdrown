@@ -7,7 +7,7 @@ body {
 
 @media (prefers-color-scheme: light) {
 	html {
-		--theme-background: #a2a67c;
+		--theme-background: #ced2a0;
 		--theme-text: #000;
 		--theme-highlight: #004cff;
 		--theme-weaktext: #333;
@@ -35,10 +35,13 @@ body {
 }
 
 a {
-	text-decoration: none;
+	text-decoration: underline 0.1em #0000;
+	text-underline-offset: 0.3em;
+	transition: text-decoration-color 200ms, text-underline-offset 200ms;
 	color: var(--theme-text);
 }
 
 .link a:hover {
-	text-decoration: underline var(--theme-highlight);
+	text-decoration-color: var(--theme-highlight);
+	text-underline-offset: 0.15em;
 }

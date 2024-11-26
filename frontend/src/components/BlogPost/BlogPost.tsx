@@ -1,7 +1,7 @@
 import Markdoc from "@markdoc/markdoc";
 import { createSelector } from "@reduxjs/toolkit";
 import React, { type ReactNode, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { ApiError } from "../../store/api";
 import { getOneBlog } from "../../store/blogs";
@@ -61,8 +61,10 @@ function BlogPost() {
 	}
 
 	if (!post || !author || !rendered) {
-		return <LoadingText />;
+		return <LoadingText text="Loading" />;
 	}
+
+	const created_at = Intl.DateTimeFormat().format(new Date(post.created_at));
 
 	return (
 		<div className="BlogPost">
@@ -70,14 +72,17 @@ function BlogPost() {
 				<div>
 					<div className="title">{post.title}</div>
 					<div className="info">
-						{author.username}
-						<div className="date">
-							{new Date(post.created_at).toLocaleDateString()}
-						</div>
+						<span className="link">
+							<Link to={`/author/${author.id}`}>{author.username}</Link>
+						</span>
+						<div className="date">{created_at}</div>
 					</div>
 				</div>
 			</div>
-			<p>{rendered}</p>
+			<p>
+				{rendered}
+				{post.partial ? <LoadingText text="" /> : false}
+			</p>
 			<CommentBox postId={post.id} />
 		</div>
 	);
