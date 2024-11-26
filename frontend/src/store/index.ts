@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import blogPostReducer from "./blogs";
 import sessionReducer from "./session";
 import userReducer from "./users";
+import commentReducer from "./comments";
 
 export const store = configureStore({
 	reducer: {
 		session: sessionReducer,
 		blogPosts: blogPostReducer,
 		users: userReducer,
+		comments: commentReducer,
 	},
 });
 

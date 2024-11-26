@@ -10,7 +10,7 @@ use axum_extra::extract::{
     cookie::{Cookie, SameSite},
     CookieJar,
 };
-use chrono::{DateTime, FixedOffset, TimeDelta, Utc};
+use chrono::{DateTime, TimeDelta, Utc};
 use jwt::{SignWithKey, VerifyWithKey};
 use prisma_client_rust::or;
 use scrypt::{

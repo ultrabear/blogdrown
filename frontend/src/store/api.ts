@@ -147,7 +147,7 @@ export const api = {
 		},
 		getOne: async (blogId: string): Promise<GetPostRes> => {
 			return await notNull(
-				datalessfetch(`/blogs/one?=${encodeURIComponent(blogId)}`, "GET"),
+				datalessfetch(`/blogs/one?id=${encodeURIComponent(blogId)}`, "GET"),
 			);
 		},
 		getAll: async (): Promise<GetAllPostsItem[]> => {

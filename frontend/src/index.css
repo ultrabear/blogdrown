@@ -10,6 +10,7 @@ body {
 		--theme-background: #a2a67c;
 		--theme-text: #000;
 		--theme-highlight: #004cff;
+    --theme-weaktext: #333;
 	}
 }
 
@@ -18,6 +19,7 @@ body {
 		--theme-background: #000;
 		--theme-text: #d5dbdb;
 		--theme-highlight: #0000c8;
+    --theme-weaktext: #888;
 	}
 }
 

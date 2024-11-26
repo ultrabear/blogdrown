@@ -58,13 +58,8 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
                 .map_err(|_| "missing SECRET_KEY")?
                 .as_bytes(),
         )?,
-        production: env::var("BLOGDROWN_DEV").map_or(true, |s| {
-            if matches!(s.to_lowercase().as_str(), "1" | "true") {
-                false
-            } else {
-                true
-            }
-        }),
+        production: env::var("BLOGDROWN_DEV")
+            .map_or(true, |s| !matches!(s.to_lowercase().as_str(), "1" | "true")),
     };
 
     if !state.production {

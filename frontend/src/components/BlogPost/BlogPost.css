@@ -1,0 +1,27 @@
+.BlogPost {
+
+  .metabox {
+
+    display: flex;
+    justify-content: center;
+
+    .title {
+      font-size: xx-large;
+      font-weight: bold;
+    }
+
+    .info {
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      color: var(--theme-weaktext);
+
+      .date {
+        font-size: 0.8em;
+      }
+    }
+  }
+
+}

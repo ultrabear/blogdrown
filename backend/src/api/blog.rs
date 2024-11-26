@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -80,7 +82,7 @@ async fn get_post(
 ) -> Result<Json<GetPostRes>, ApiError> {
     use crate::prisma::{
         blog_post::{self, select},
-        blog_post_version,
+        blog_post_version, comment, user,
     };
     use prisma_client_rust::Direction;
 
@@ -93,9 +95,10 @@ async fn get_post(
         .select(select!({
             versions(vec![])
                 .order_by(blog_post_version::created_at::order(Direction::Desc))
-                .take(1): select { text created_at }
-            owner: select { id username }
-            comments: include { author }
+                .take(1): select { id text created_at }
+            owner_id
+            owner: select { username }
+            comments(vec![]).order_by(comment::created_at::order(Direction::Desc))
             title_norm
             title
             created_at
@@ -114,6 +117,27 @@ async fn get_post(
         return Err(Error::not_found());
     };
 
+    let authors = post
+        .comments
+        .iter()
+        .map(|c| Uuid::from(expect_uuid(&c.author_id)))
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .map(|id| id.to_string())
+        .collect::<Vec<_>>();
+
+    let authors_resolve = state
+        .prisma
+        .user()
+        .find_many(vec![user::id::in_vec(authors)])
+        .select(user::select!({ id username }))
+        .exec()
+        .await
+        .map_err(Error::from_query)?
+        .into_iter()
+        .map(|a| (a.id, a.username))
+        .collect::<HashMap<String, String>>();
+
     Ok(Json(GetPostRes {
         id_ts: IdAndTimestamps {
             id: post_id,
@@ -124,7 +148,7 @@ async fn get_post(
         title_norm: post.title_norm,
         body: BoundString::new_unchecked(latest.text),
         user: MinUser {
-            id: Ulid::from(post.owner.id.parse::<Uuid>().expect("database stores uuid")),
+            id: expect_uuid(&post.owner_id),
             username: BoundString::new_unchecked(post.owner.username),
         },
         comments: post
@@ -139,8 +163,13 @@ async fn get_post(
                 post_id,
                 body: c.text,
                 author: MinUser {
-                    id: expect_uuid(&c.author.id),
-                    username: BoundString::new_unchecked(c.author.username),
+                    id: expect_uuid(&c.author_id),
+                    username: BoundString::new_unchecked(
+                        authors_resolve
+                            .get(&c.author_id)
+                            .cloned()
+                            .unwrap_or_else(String::new),
+                    ),
                 },
             })
             .collect(),

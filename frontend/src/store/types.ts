@@ -32,6 +32,8 @@ export type Comment = {
 	author_id: string;
 	post_id: string;
 	text: string;
+	created_at: string;
+	updated_at:string;
 };
 
 export type CommentSlice = Record<string, Comment>;

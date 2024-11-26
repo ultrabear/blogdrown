@@ -6,6 +6,7 @@ import {
 import { ApiError, type GetAllPostsItem, type GetPostRes, api } from "./api";
 import type { BlogPost, BlogPostSlice } from "./types";
 import { userSlice } from "./users";
+import { apiCommentToStore, commentSlice } from "./comments";
 
 function bulkPostToStore(b: GetAllPostsItem): BlogPost {
 	const { user, title_norm, partial_body, ...rest } = b;
@@ -48,8 +49,14 @@ export const getOneBlog = createAsyncThunk(
 			const res = await api.blogs.getOne(id);
 
 			dispatch(blogPostSlice.actions.loadPost(singlePostToStore(res)));
-			dispatch(userSlice.actions.addUsers([res.user]));
-			// TODO commentsSlice
+			dispatch(
+				userSlice.actions.addUsers(
+					res.comments.map((c) => c.author).concat([res.user]),
+				),
+			);
+			dispatch(
+				commentSlice.actions.addComments(res.comments.map(apiCommentToStore)),
+			);
 		} catch (e) {
 			if (e instanceof ApiError) {
 				return e;
@@ -70,12 +77,12 @@ export const blogPostSlice = createSlice({
 		},
 		loadPosts: (state, action: PayloadAction<BlogPost[]>) => {
 			for (const post of action.payload) {
-				if (post.partial && post.id in state && !state[post.id]!.partial) {
+				if (post.partial && post.id in state) {
 					const oldBody = state[post.id]!.text;
 
 					state[post.id] = post;
 
-					if (post.text.startsWith(oldBody)) {
+					if (oldBody.startsWith(post.text)) {
 						state[post.id]!.text = oldBody;
 					}
 				} else {
