@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import blogPostReducer from "./blogs";
+import commentReducer from "./comments";
 import sessionReducer from "./session";
 import userReducer from "./users";
-import commentReducer from "./comments";
 
 export const store = configureStore({
 	reducer: {

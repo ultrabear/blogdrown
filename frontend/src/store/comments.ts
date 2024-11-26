@@ -1,6 +1,6 @@
 import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
-import type { Comment, CommentSlice } from "./types";
 import type { GetComment } from "./api";
+import type { Comment, CommentSlice } from "./types";
 
 export function apiCommentToStore(c: GetComment): Comment {
 	const { author, body, ...rest } = c;

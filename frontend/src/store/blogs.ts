@@ -4,9 +4,9 @@ import {
 	createSlice,
 } from "@reduxjs/toolkit";
 import { ApiError, type GetAllPostsItem, type GetPostRes, api } from "./api";
+import { apiCommentToStore, commentSlice } from "./comments";
 import type { BlogPost, BlogPostSlice } from "./types";
 import { userSlice } from "./users";
-import { apiCommentToStore, commentSlice } from "./comments";
 
 function bulkPostToStore(b: GetAllPostsItem): BlogPost {
 	const { user, title_norm, partial_body, ...rest } = b;

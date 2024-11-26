@@ -9,5 +9,10 @@ export function LoadingText({ text }: { text?: string }) {
 		setTimeout(() => setAnimation((animation + 1) % frames.length), 200);
 	}, [animation]);
 
-	return <div className="Loading Text">{text ? text : "Loading component"}{frames[animation]!}</div>;
+	return (
+		<div className="Loading Text">
+			{text ? text : "Loading component"}
+			{frames[animation]!}
+		</div>
+	);
 }
