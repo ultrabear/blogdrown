@@ -7,8 +7,8 @@ import {
 	sessionLogout,
 	sessionSignup,
 } from "../../store/session";
-import { SessionLoading } from "../Layout/Session";
 import { type Closer, ModalButton } from "../Layout/Modal";
+import { SessionLoading } from "../Layout/Session";
 import { LoadingText } from "../Loading";
 
 function SignupForm({ close }: Closer) {

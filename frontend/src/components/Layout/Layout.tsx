@@ -6,7 +6,6 @@ import { useAppDispatch } from "../../store";
 import { sessionAuth } from "../../store/session";
 import { SessionLoading } from "./Session";
 
-
 function Layout() {
 	const dispatch = useAppDispatch();
 	const loading = useContext(SessionLoading);
