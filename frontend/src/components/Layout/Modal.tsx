@@ -52,10 +52,10 @@ export function ModalButton({
 	const [clicked, setClicked] = useState(false);
 
 	return (
-		<div onClick={() => setClicked(true)}>
-			<span className="link obvious">
-				<button type="button">{children}</button>
-			</span>
+		<div className="link obvious">
+			<button type="button" onClick={() => setClicked(true)}>
+				{children}
+			</button>
 			{clicked && (
 				<Modal
 					close={() => setClicked(false)}
