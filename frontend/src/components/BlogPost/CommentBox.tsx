@@ -10,12 +10,8 @@ import { cachedMarkdoc } from "../markdown";
 type Ordering = -1 | 0 | 1;
 
 function strCmp(a: string, b: string): Ordering {
-	if (a > b) {
-		return 1;
-	}
-	if (a < b) {
-		return -1;
-	}
+	if (a > b) return 1;
+	if (a < b) return -1;
 
 	return 0;
 }
@@ -37,31 +33,33 @@ function CreateCommentBox({ postId }: { postId: string }) {
 	};
 
 	return (
-		<form
-			onSubmit={(e) => {
-				e.preventDefault();
-				postComment();
-			}}
-		>
-			<input
-				type="text"
-				minLength={10}
-				maxLength={1000}
-				value={text}
-				onChange={(e) => setText(e.target.value)}
-				placeholder="Write your own comment!"
-				required
-			/>
-			<span className="link obvious">
-				<button type="submit" data-disabled={text.length < 10 ? "yes" : "no"}>
-					Post
-				</button>
-			</span>
-			<span className="error">
-				{errs?.err?.errors?.body ? errs.err.errors.body : false}
-			</span>
-			<div className="error">{errs ? errs.err.message : false}</div>
-		</form>
+		<div className="CreateCommentBox">
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					postComment();
+				}}
+			>
+				<input
+					type="text"
+					minLength={10}
+					maxLength={1000}
+					value={text}
+					onChange={(e) => setText(e.target.value)}
+					placeholder="Write your own comment!"
+					required
+				/>
+				<span className="link obvious">
+					<button type="submit" data-disabled={text.length < 10 ? "yes" : "no"}>
+						Post
+					</button>
+				</span>
+				<span className="error">
+					{errs?.err?.errors?.body ? errs.err.errors.body : false}
+				</span>
+				<div className="error">{errs ? errs.err.message : false}</div>
+			</form>
+		</div>
 	);
 }
 
@@ -84,6 +82,9 @@ function SingleComment({ commentId }: { commentId: string }) {
 	const author = useAppSelector((state) =>
 		comment ? state.users[comment.author_id] : undefined,
 	);
+	const sessionId = useAppSelector((state) => state.session.user?.id);
+
+	//const [editing, setEditing] = useState(false);
 
 	if (!comment || !author) {
 		return <LoadingText />;
@@ -96,7 +97,13 @@ function SingleComment({ commentId }: { commentId: string }) {
 			<div className="author link">
 				<Link to={`/author/${comment.author_id}`}>{author.username}</Link>
 			</div>
-			{commentText}
+			<div className="link obvious">{commentText}</div>
+			{sessionId === author.id && (
+				<div className="link obvious">
+					<button type="button">Edit</button>
+					<button type="button">Delete</button>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -110,6 +117,7 @@ export function CommentBox({ postId }: { postId: string }) {
 			<div className="HLine" />
 			<h1>Comments</h1>
 			{session && <CreateCommentBox postId={postId} />}
+			<div className="Spacer" />
 			{comments.map((id) => (
 				<SingleComment key={id} commentId={id} />
 			))}

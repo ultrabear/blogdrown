@@ -89,3 +89,7 @@ form {
 .HLine {
 	border-top: 2px solid var(--theme-highlight);
 }
+
+.Spacer {
+  padding: 10px;
+}
