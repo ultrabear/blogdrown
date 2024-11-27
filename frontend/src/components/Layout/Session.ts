@@ -1,3 +1,3 @@
 import { createContext } from "react";
 
-export const SessionLoading = createContext({ loading: true });
+export const SessionLoading = createContext(true);

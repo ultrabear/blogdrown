@@ -160,7 +160,7 @@ function ProfileNav() {
 		dispatch(sessionLogout());
 	};
 
-	if (loading.loading) {
+	if (loading) {
 		return (
 			<div className="ProfileNav">
 				<LoadingText text="" />
