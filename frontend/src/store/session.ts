@@ -3,21 +3,8 @@ import {
 	createAsyncThunk,
 	createSlice,
 } from "@reduxjs/toolkit";
-import { ApiError, type Login, type Signup, api } from "./api";
+import { type Login, type Signup, api, catchError } from "./api";
 import type { SessionSlice, SessionUser } from "./types";
-
-async function catchError(
-	cb: () => Promise<void>,
-): Promise<undefined | ApiError> {
-	try {
-		await cb();
-	} catch (e) {
-		if (e instanceof ApiError) {
-			return e;
-		}
-		throw e;
-	}
-}
 
 export const sessionAuth = createAsyncThunk(
 	"session/authMe",

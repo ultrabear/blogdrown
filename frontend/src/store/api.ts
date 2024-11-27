@@ -126,6 +126,19 @@ async function datalessfetch<T>(
 	}
 }
 
+export async function catchError(
+	cb: () => Promise<void>,
+): Promise<undefined | ApiError> {
+	try {
+		await cb();
+	} catch (e) {
+		if (e instanceof ApiError) {
+			return e;
+		}
+		throw e;
+	}
+}
+
 export const api = {
 	auth: {
 		login: async (login: Login): Promise<AuthUser> => {

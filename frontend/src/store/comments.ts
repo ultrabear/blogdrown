@@ -4,7 +4,7 @@ import {
 	createSlice,
 } from "@reduxjs/toolkit";
 import type { RootState } from ".";
-import { ApiError, type GetComment, api } from "./api";
+import { type GetComment, api, catchError } from "./api";
 import type { Comment, CommentSlice } from "./types";
 
 export function apiCommentToStore(c: GetComment): Comment {
@@ -19,11 +19,11 @@ export function apiCommentToStore(c: GetComment): Comment {
 
 export const uploadComment = createAsyncThunk(
 	"comments/uploadComment",
-	async (
+	(
 		{ postId, body }: { postId: string; body: string },
 		{ dispatch, getState },
-	) => {
-		try {
+	) =>
+		catchError(async () => {
 			const ids = await api.blogs.comments.create(postId, { body });
 
 			const state = getState() as RootState;
@@ -34,13 +34,33 @@ export const uploadComment = createAsyncThunk(
 					{ ...ids, author_id, text: body, post_id: postId },
 				]),
 			);
-		} catch (e) {
-			if (e instanceof ApiError) {
-				return e;
-			}
-			throw e;
-		}
-	},
+		}),
+);
+
+export const editComment = createAsyncThunk(
+	"comments/editComment",
+	({ commentId, body }: { commentId: string; body: string }, { dispatch }) =>
+		catchError(async () => {
+			const ids = await api.blogs.comments.update(commentId, { body });
+
+			dispatch(
+				commentSlice.actions.editComment({
+					updated_at: ids.updated_at,
+					commentId,
+					body,
+				}),
+			);
+		}),
+);
+
+export const deleteComment = createAsyncThunk(
+	"comments/deleteComment",
+	(commentId: string, { dispatch }) =>
+		catchError(async () => {
+			await api.blogs.comments.delete(commentId);
+
+			dispatch(commentSlice.actions.deleteComment({ commentId }));
+		}),
 );
 
 const initialState: CommentSlice = {};
@@ -53,6 +73,26 @@ export const commentSlice = createSlice({
 			for (const comm of action.payload) {
 				state[comm.id] = comm;
 			}
+		},
+
+		editComment: (
+			state,
+			action: PayloadAction<{
+				updated_at: string;
+				commentId: string;
+				body: string;
+			}>,
+		) => {
+			const { commentId, body, updated_at } = action.payload;
+
+			if (commentId in state) {
+				state[commentId]!.text = body;
+				state[commentId]!.updated_at = updated_at;
+			}
+		},
+
+		deleteComment: (state, action: PayloadAction<{ commentId: string }>) => {
+			delete state[action.payload.commentId];
 		},
 	},
 });

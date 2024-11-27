@@ -1,9 +1,13 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { type RootState, useAppDispatch, useAppSelector } from "../../store";
 import type { ApiError } from "../../store/api";
-import { uploadComment } from "../../store/comments";
+import {
+	deleteComment,
+	editComment,
+	uploadComment,
+} from "../../store/comments";
 import { LoadingText } from "../Loading";
 import { cachedMarkdoc } from "../markdown";
 
@@ -15,6 +19,9 @@ function strCmp(a: string, b: string): Ordering {
 
 	return 0;
 }
+
+const COMMENT_MIN = 10;
+const COMMENT_MAX = 1000;
 
 function CreateCommentBox({ postId }: { postId: string }) {
 	const [text, setText] = useState("");
@@ -42,8 +49,8 @@ function CreateCommentBox({ postId }: { postId: string }) {
 			>
 				<input
 					type="text"
-					minLength={10}
-					maxLength={1000}
+					minLength={COMMENT_MIN}
+					maxLength={COMMENT_MAX}
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 					placeholder="Write your own comment!"
@@ -77,14 +84,85 @@ const selectPostComments = createSelector(
 	},
 );
 
+interface HasDefaultPrevention {
+	preventDefault(): void;
+}
+
+function preventDefault<T>(f: () => T): (e: HasDefaultPrevention) => T {
+	return (e) => {
+		e.preventDefault();
+		return f();
+	};
+}
+
+function CommentEdit({
+	commentId,
+	close,
+}: { commentId: string; close: () => void }) {
+	const commentText = useAppSelector(
+		(state) => state.comments[commentId]!.text,
+	);
+
+	const [text, setText] = useState(commentText);
+
+	const [errs, setErrs] = useState<undefined | ApiError>(undefined);
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		const handleEsc = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				close();
+			}
+		};
+
+		document.addEventListener("keydown", handleEsc);
+
+		return () => {
+			document.removeEventListener("keydown", handleEsc);
+		};
+	});
+
+	const submit = async () => {
+		const res = await dispatch(editComment({ commentId, body: text })).unwrap();
+
+		if (res) {
+			setErrs(res);
+		} else {
+			setErrs(undefined);
+			close();
+		}
+	};
+
+	return (
+		<form onSubmit={preventDefault(submit)} className="link obvious">
+			<input
+				type="text"
+				value={text}
+				onChange={(e) => setText(e.target.value)}
+				minLength={COMMENT_MIN}
+				maxLength={COMMENT_MAX}
+			/>
+			<button type="submit">Edit</button>
+			<button type="button" onClick={preventDefault(close)}>
+				Cancel
+			</button>
+			<span className="error">
+				{errs?.err?.errors?.body ? errs.err.errors.body : false}
+			</span>
+			<div className="error">{errs ? errs.err.message : false}</div>
+		</form>
+	);
+}
+
 function SingleComment({ commentId }: { commentId: string }) {
 	const comment = useAppSelector((state) => state.comments[commentId]);
 	const author = useAppSelector((state) =>
 		comment ? state.users[comment.author_id] : undefined,
 	);
 	const sessionId = useAppSelector((state) => state.session.user?.id);
+	const dispatch = useAppDispatch();
 
-	//const [editing, setEditing] = useState(false);
+	const [editing, setEditing] = useState(false);
 
 	if (!comment || !author) {
 		return <LoadingText />;
@@ -97,12 +175,30 @@ function SingleComment({ commentId }: { commentId: string }) {
 			<div className="author link">
 				<Link to={`/author/${comment.author_id}`}>{author.username}</Link>
 			</div>
-			<div className="link obvious">{commentText}</div>
-			{sessionId === author.id && (
-				<div className="link obvious">
-					<button type="button">Edit</button>
-					<button type="button">Delete</button>
-				</div>
+			{editing ? (
+				<CommentEdit commentId={commentId} close={() => setEditing(false)} />
+			) : (
+				<>
+					<div className="link obvious">{commentText}</div>
+					{sessionId === author.id && (
+						<div className="link obvious">
+							<button
+								type="button"
+								onClick={preventDefault(() => setEditing(true))}
+							>
+								Edit
+							</button>
+							<button
+								type="button"
+								onClick={preventDefault(() =>
+									dispatch(deleteComment(commentId)),
+								)}
+							>
+								Delete
+							</button>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);
