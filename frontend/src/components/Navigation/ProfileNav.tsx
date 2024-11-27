@@ -7,7 +7,7 @@ import {
 	sessionLogout,
 	sessionSignup,
 } from "../../store/session";
-import { SessionLoading } from "../Layout/Layout";
+import { SessionLoading } from "../Layout/Session";
 import { type Closer, ModalButton } from "../Layout/Modal";
 import { LoadingText } from "../Loading";
 
