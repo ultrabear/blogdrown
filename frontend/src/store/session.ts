@@ -21,11 +21,12 @@ async function catchError(
 
 export const sessionAuth = createAsyncThunk(
 	"session/authMe",
-	async (_: undefined, { dispatch }) => {
-		const session = await api.auth.session();
+	async (_: undefined, { dispatch }) =>
+		await catchError(async () => {
+			const session = await api.auth.session();
 
-		dispatch(sessionSlice.actions.setSession(session));
-	},
+			dispatch(sessionSlice.actions.setSession(session));
+		}),
 );
 
 export const sessionLogin = createAsyncThunk(
