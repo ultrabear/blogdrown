@@ -10,7 +10,8 @@
 }
 
 .ModalRoot {
-	position: absolute;
+	position: fixed;
+	pointer-events: none;
 	top: 0;
 	right: 0;
 	width: 100%;
@@ -21,6 +22,7 @@
 	align-items: center;
 
 	.ModalItem {
+		pointer-events: all;
 		background: color-mix(
 			in srgb,
 			var(--theme-highlight) 25%,

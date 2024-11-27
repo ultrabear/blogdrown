@@ -32,6 +32,9 @@ function CreateCommentBox({ postId }: { postId: string }) {
 
 		if (res) {
 			setErrs(res);
+		} else {
+			setErrs(undefined);
+			setText("");
 		}
 	};
 
@@ -49,7 +52,13 @@ function CreateCommentBox({ postId }: { postId: string }) {
 				value={text}
 				onChange={(e) => setText(e.target.value)}
 				placeholder="Write your own comment!"
+				required
 			/>
+			<span className="link obvious">
+				<button type="submit" data-disabled={text.length < 10 ? "yes" : "no"}>
+					Post
+				</button>
+			</span>
 			<span className="error">
 				{errs?.err?.errors?.body ? errs.err.errors.body : false}
 			</span>
@@ -73,8 +82,14 @@ const selectPostComments = createSelector(
 );
 
 function SingleComment({ commentId }: { commentId: string }) {
-	const comment = useAppSelector((state) => state.comments[commentId]!);
-	const author = useAppSelector((state) => state.users[comment.author_id]!);
+	const comment = useAppSelector((state) => state.comments[commentId]);
+	const author = useAppSelector((state) =>
+		comment ? state.users[comment.author_id] : undefined,
+	);
+
+	if (!comment || !author) {
+		return <LoadingText />;
+	}
 
 	const commentText = cachedMarkdoc(comment.text);
 

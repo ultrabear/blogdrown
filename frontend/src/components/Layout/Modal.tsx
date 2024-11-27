@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 export interface Closer {
@@ -10,15 +10,33 @@ function Modal({
 	close,
 	root,
 }: { Component: React.FC<Closer>; root: Element; close: () => void }) {
-	return createPortal(
-		<div
-			className="ModalRoot"
-			onClick={(e) => {
-				e.stopPropagation();
+	const modalInner = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const outerClick = (e: MouseEvent) => {
+			if (!(e.target && modalInner.current?.contains?.(e.target as Node))) {
 				close();
-			}}
-		>
-			<div className="ModalItem" onClick={(e) => e.stopPropagation()}>
+			}
+		};
+
+		const escapeKey = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				close();
+			}
+		};
+
+		document.addEventListener("mouseup", outerClick);
+		document.addEventListener("keydown", escapeKey);
+
+		return () => {
+			document.removeEventListener("mouseup", outerClick);
+			document.removeEventListener("keydown", escapeKey);
+		};
+	});
+
+	return createPortal(
+		<div className="ModalRoot">
+			<div className="ModalItem" ref={modalInner}>
 				<Component close={close} />
 			</div>
 		</div>,

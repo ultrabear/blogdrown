@@ -1,5 +1,20 @@
 #Navigation {
-	display: flex;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
 	align-items: center;
+
+	& h1 {
+		text-align: center;
+	}
+
+	& .ProfileNav {
+		text-align: right;
+	}
+}
+
+.AuthForm {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 400px;
 }

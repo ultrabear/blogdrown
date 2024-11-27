@@ -5,7 +5,7 @@ import ProfileNav from "./ProfileNav";
 function Navigation() {
 	return (
 		<div id="Navigation">
-			<div className="link obvious">
+			<div className="Home link obvious">
 				<Link to="/">Home</Link>
 			</div>
 			<h1>BlogDrown</h1>
