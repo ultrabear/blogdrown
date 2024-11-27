@@ -11,6 +11,7 @@ body {
 		--theme-text: #000;
 		--theme-highlight: #004cff;
 		--theme-weaktext: #333;
+		--theme-error: red;
 	}
 }
 
@@ -20,28 +21,60 @@ body {
 		--theme-text: #d5dbdb;
 		--theme-highlight: #0000c8;
 		--theme-weaktext: #888;
+		--theme-error: darkred;
 	}
 }
 
-#Layout {
-	margin: auto;
-	width: 780px;
-}
+button {
+	border: inherit;
+	background: inherit;
+	color: inherit;
+	font: inherit;
 
-@media (max-width: 800px) {
-	#Layout {
-		width: auto;
+	&:hover {
+		cursor: pointer;
 	}
 }
 
-a {
+a,
+button {
 	text-decoration: underline 0.1em #0000;
 	text-underline-offset: 0.3em;
 	transition: text-decoration-color 200ms, text-underline-offset 200ms;
 	color: var(--theme-text);
 }
 
-.link a:hover {
-	text-decoration-color: var(--theme-highlight);
-	text-underline-offset: 0.15em;
+.link {
+	&.obvious a,
+	&.obvious button {
+		text-decoration-color: color-mix(
+			in srgb,
+			var(--theme-highlight) 40%,
+			transparent
+		);
+	}
+
+	& a:hover,
+	& button:hover,
+	&:hover {
+		text-decoration-color: var(--theme-highlight);
+		text-underline-offset: 0.15em;
+	}
+}
+
+form {
+	& input {
+		color: var(--theme-text);
+		background: var(--theme-background);
+		border: groove var(--theme-highlight);
+		width: 50%;
+	}
+}
+
+.error {
+	color: var(--theme-error);
+}
+
+.HLine {
+	border-top: 2px solid var(--theme-highlight);
 }

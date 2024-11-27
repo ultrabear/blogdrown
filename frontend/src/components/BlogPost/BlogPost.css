@@ -25,3 +25,15 @@
 		}
 	}
 }
+
+.CommentBox {
+	h1 {
+		text-align: center;
+	}
+
+	.SingleComment {
+		.author a {
+			color: var(--theme-weaktext);
+		}
+	}
+}

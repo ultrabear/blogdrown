@@ -5,6 +5,8 @@ import type { RootState } from "../../store";
 import { getAll } from "../../store/blogs";
 import "./index.css";
 import { Link } from "react-router-dom";
+import type { BlogPost } from "../../store/types";
+import { toRenderable } from "../markdown";
 
 type Ordering = -1 | 0 | 1;
 
@@ -30,6 +32,11 @@ const selectNewestPosts = createSelector(
 	},
 );
 
+const postSliver = createSelector(
+	[(post: BlogPost) => post.text, (post: BlogPost) => post.id],
+	(post, postId) => toRenderable(`${post.slice(0, 64)}[....](/blog/${postId})`),
+);
+
 function BlogTile({ blogId }: { blogId: string }) {
 	const blogPost = useAppSelector((state) => state.blogPosts[blogId]);
 
@@ -41,12 +48,16 @@ function BlogTile({ blogId }: { blogId: string }) {
 		return <>Loading...</>;
 	}
 
+	const rendered = postSliver(blogPost);
+
 	return (
 		<Link to={`/blog/${blogPost.id}`}>
 			<article className="BlogTile">
 				<div className="title">{blogPost.title}</div>
-				<div className="user">{author.username}</div>
-				<p>{blogPost.text}</p>
+				<div className="user link">
+					<Link to={`/author/${author.id}`}>{author.username}</Link>
+				</div>
+				<p className="link obvious">{rendered}</p>
 			</article>
 		</Link>
 	);

@@ -1,3 +1,11 @@
 .BlogTile {
 	border: var(--theme-highlight) 2px dashed;
+
+	.title {
+		font-size: larger;
+	}
+
+	.user a {
+		color: var(--theme-weaktext);
+	}
 }

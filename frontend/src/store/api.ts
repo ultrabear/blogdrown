@@ -169,7 +169,10 @@ export const api = {
 				blogId: string,
 				data: PostComment,
 			): Promise<IdAndTimestamps> => {
-				return await jpost(`/blogs/${encodeURIComponent(blogId)}`, data);
+				return await jpost(
+					`/blogs/${encodeURIComponent(blogId)}/comments`,
+					data,
+				);
 			},
 
 			update: async (
