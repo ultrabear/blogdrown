@@ -27,7 +27,7 @@
 }
 
 .CommentBox {
-	h1 {
+	h1.titleOnly {
 		text-align: center;
 	}
 

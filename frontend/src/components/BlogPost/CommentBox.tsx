@@ -211,7 +211,7 @@ export function CommentBox({ postId }: { postId: string }) {
 	return (
 		<div className="CommentBox">
 			<div className="HLine" />
-			<h1>Comments</h1>
+			<h1 className="titleOnly">Comments</h1>
 			{session && <CreateCommentBox postId={postId} />}
 			<div className="Spacer" />
 			{comments.map((id) => (
