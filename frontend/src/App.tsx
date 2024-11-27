@@ -1,4 +1,5 @@
-import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import AuthorPage from "./components/AuthorPage/AuthorPage";
 import BlogPost from "./components/BlogPost/BlogPost";
 import HomePage from "./components/HomePage/HomePage";
 import Layout from "./components/Layout/Layout";
@@ -13,11 +14,19 @@ const router = createBrowserRouter([
 			},
 			{
 				path: "blog",
-				element: <Outlet />,
 				children: [
 					{
 						path: ":postId",
 						element: <BlogPost />,
+					},
+				],
+			},
+			{
+				path: "author",
+				children: [
+					{
+						path: ":authorId",
+						element: <AuthorPage />,
 					},
 				],
 			},

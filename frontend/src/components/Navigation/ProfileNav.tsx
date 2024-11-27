@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store";
 import type { ApiError, Login, Signup } from "../../store/api";
@@ -7,7 +7,9 @@ import {
 	sessionLogout,
 	sessionSignup,
 } from "../../store/session";
+import { SessionLoading } from "../Layout/Layout";
 import { type Closer, ModalButton } from "../Layout/Modal";
+import { LoadingText } from "../Loading";
 
 function SignupForm({ close }: Closer) {
 	const [email, setEmail] = useState("");
@@ -148,6 +150,7 @@ function ProfileNav() {
 
 	const session = useAppSelector((state) => state.session.user);
 	const dispatch = useAppDispatch();
+	const loading = useContext(SessionLoading);
 
 	if (!node) {
 		throw new Error("expected body #authNode to exist in document tree");
@@ -156,6 +159,14 @@ function ProfileNav() {
 	const logout = () => {
 		dispatch(sessionLogout());
 	};
+
+	if (loading.loading) {
+		return (
+			<div className="ProfileNav">
+				<LoadingText text="" />
+			</div>
+		);
+	}
 
 	return (
 		<div className="ProfileNav">

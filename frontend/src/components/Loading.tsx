@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const frames = [".", "..", "..", "...", "...", "..."];
+const frames = [".  ", ".. ", ".. ", "...", "...", "..."];
 
 export function LoadingText({ text }: { text?: string }) {
 	const [animation, setAnimation] = useState(0);

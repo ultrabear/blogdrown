@@ -1,19 +1,23 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import Navigation from "../Navigation/Navigation";
 import "./index.css";
-import { useEffect } from "react";
+import { createContext, useContext } from "react";
 import { useAppDispatch } from "../../store";
 import { sessionAuth } from "../../store/session";
 
+export const SessionLoading = createContext({ loading: true });
+
 function Layout() {
 	const dispatch = useAppDispatch();
+	const loading = useContext(SessionLoading);
 
-	useEffect(() => {
-		dispatch(sessionAuth());
-	}, [dispatch]);
+	dispatch(sessionAuth()).then(() => {
+		loading.loading = false;
+	});
 
 	return (
 		<div id="Layout">
+			<ScrollRestoration />
 			<Navigation />
 			<Outlet />
 		</div>
