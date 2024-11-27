@@ -1,48 +1,47 @@
 .BlogPost {
-  .metabox {
-    display: flex;
-    justify-content: center;
+	.metabox {
+		display: flex;
+		justify-content: center;
 
-    .title {
-      font-size: xx-large;
-      font-weight: bold;
-    }
+		.title {
+			font-size: xx-large;
+			font-weight: bold;
+		}
 
-    .info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+		.info {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 
-      color: var(--theme-weaktext);
+			color: var(--theme-weaktext);
 
-      & a {
-        color: var(--theme-weaktext);
-      }
+			& a {
+				color: var(--theme-weaktext);
+			}
 
-      .date {
-        font-size: 0.8em;
-      }
-    }
-  }
+			.date {
+				font-size: 0.8em;
+			}
+		}
+	}
 }
 
 .CommentBox {
-  h1 {
-    text-align: center;
-  }
+	h1 {
+		text-align: center;
+	}
 
-  .SingleComment {
+	.SingleComment {
+		.author {
+			margin-top: 15px;
 
-    .author {
-      margin-top: 15px;
+			& a {
+				color: var(--theme-weaktext);
+			}
+		}
 
-      & a {
-        color: var(--theme-weaktext);
-      }
-    }
-
-    & p {
-      margin: 0;
-    }
-  }
+		& p {
+			margin: 0;
+		}
+	}
 }
