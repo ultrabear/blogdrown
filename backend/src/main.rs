@@ -13,6 +13,7 @@ use tower_http::{
 };
 
 #[allow(unused, warnings)]
+#[rustfmt::skip]
 mod prisma;
 
 mod api;
