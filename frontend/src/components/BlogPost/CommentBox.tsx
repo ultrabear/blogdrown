@@ -1,6 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { cmp, preventDefault, reversed } from "../../rustAtHome";
 import { type RootState, useAppDispatch, useAppSelector } from "../../store";
 import type { ApiError } from "../../store/api";
 import {
@@ -10,15 +11,6 @@ import {
 } from "../../store/comments";
 import { LoadingText } from "../Loading";
 import { cachedMarkdoc } from "../markdown";
-
-type Ordering = -1 | 0 | 1;
-
-function strCmp(a: string, b: string): Ordering {
-	if (a > b) return 1;
-	if (a < b) return -1;
-
-	return 0;
-}
 
 const COMMENT_MIN = 10;
 const COMMENT_MAX = 1000;
@@ -76,25 +68,13 @@ const selectPostComments = createSelector(
 		(_: RootState, postId: string) => postId,
 	],
 	(comments, postId) => {
-		const c = Object.values(comments).filter((c) => c.post_id === postId);
+		const c = Object.values(comments)
+			.filter((c) => c.post_id === postId)
+			.map((c) => c.id);
 
-		c.sort((a, b) => strCmp(b.id, a.id));
-
-		return c.map((c) => c.id);
+		return c.sort(reversed<string>(cmp));
 	},
 );
-
-interface HasDefaultPrevention {
-	preventDefault(): void;
-}
-
-function preventDefault<T>(f: () => T): (e: HasDefaultPrevention) => T {
-	return (e) => {
-		e.preventDefault();
-		return f();
-	};
-}
-
 function CommentEdit({
 	commentId,
 	close,
@@ -142,7 +122,9 @@ function CommentEdit({
 				minLength={COMMENT_MIN}
 				maxLength={COMMENT_MAX}
 			/>
-			<button type="submit">Edit</button>
+			<button type="submit" data-disabled={text.length < 10 ? "yes" : "no"}>
+				Edit
+			</button>
 			<button type="button" onClick={preventDefault(close)}>
 				Cancel
 			</button>

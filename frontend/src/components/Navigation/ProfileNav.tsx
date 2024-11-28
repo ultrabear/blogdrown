@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import { preventDefault } from "../../rustAtHome";
 import { useAppDispatch, useAppSelector } from "../../store";
 import type { ApiError, Login, Signup } from "../../store/api";
 import {
@@ -176,13 +177,10 @@ function ProfileNav() {
 						<Link to={`/author/${session.id}`}>{session.username}</Link>
 					</div>
 					<div className="link obvious">
-						<button
-							type="button"
-							onClick={(e) => {
-								e.preventDefault();
-								logout();
-							}}
-						>
+						<Link to="/blog/new">New Post</Link>
+					</div>
+					<div className="link obvious">
+						<button type="button" onClick={preventDefault(logout)}>
 							Logout
 						</button>
 					</div>

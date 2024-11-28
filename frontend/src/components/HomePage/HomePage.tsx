@@ -5,30 +5,16 @@ import type { RootState } from "../../store";
 import { getAll } from "../../store/blogs";
 import "./index.css";
 import { Link } from "react-router-dom";
+import { cmp, reversed } from "../../rustAtHome";
 import type { BlogPost } from "../../store/types";
 import { toRenderable } from "../markdown";
-
-type Ordering = -1 | 0 | 1;
-
-function strCmp(a: string, b: string): Ordering {
-	if (a > b) {
-		return 1;
-	}
-	if (a < b) {
-		return -1;
-	}
-
-	return 0;
-}
 
 const selectNewestPosts = createSelector(
 	(state: RootState) => state.blogPosts,
 	(posts) => {
-		const arr = Object.values(posts);
+		const arr = Object.values(posts).map((i) => i.id);
 
-		arr.sort((a, b) => strCmp(b.id, a.id));
-
-		return arr.map((i) => i.id);
+		return arr.sort(reversed<string>(cmp));
 	},
 );
 

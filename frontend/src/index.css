@@ -80,6 +80,12 @@ form {
 		border: groove var(--theme-highlight);
 		width: 60%;
 	}
+
+	& textarea {
+		color: var(--theme-text);
+		background: var(--theme-background);
+		border: groove var(--theme-highlight);
+	}
 }
 
 .error {
@@ -92,4 +98,8 @@ form {
 
 .Spacer {
 	padding: 10px;
+}
+
+.centered {
+	text-align: center;
 }
