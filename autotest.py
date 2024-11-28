@@ -94,7 +94,7 @@ def finishjobs(testout: "Queue[RunningProc]", tests_c: int) -> int:
 
 def main() -> int:
     tests: Dict[str, List[str]] = {
-        "frontend": ["pnpm biome check", "pnpm lint", "pnpm tsc -b"],
+        "frontend": ["rnpx biome check", "rnpx lint", "rnpx tsc -b"],
         "backend": [
             "cargo fmt --check",
             "cargo check",
