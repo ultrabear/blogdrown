@@ -15,7 +15,7 @@ export default function NewPost() {
 	const navigate = useNavigate();
 
 	if (!loading && !session) {
-		return navigate("/");
+		navigate("/");
 	}
 
 	const preview = toRenderable(body);
