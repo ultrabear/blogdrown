@@ -60,4 +60,4 @@ COPY --from=backend /backend/target/release/prisma-cli /backend/target/release/b
 COPY --from=frontend /frontend/dist /blogdrown/frontend/dist
 
 WORKDIR /blogdrown/backend
-CMD ./prisma-cli migrate deploy && ./backend
+CMD ./prisma-cli db push --skip-generate && ./backend
