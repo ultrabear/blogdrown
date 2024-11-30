@@ -171,6 +171,7 @@ function SingleComment({ commentId }: { commentId: string }) {
 								Edit
 							</button>
 							<button
+								className="delete"
 								type="button"
 								onClick={preventDefault(() =>
 									dispatch(deleteComment(commentId)),

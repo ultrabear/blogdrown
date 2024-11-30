@@ -113,12 +113,24 @@ export const editBlogPost = createAsyncThunk(
 		}),
 );
 
+export const deleteBlogPost = createAsyncThunk(
+	"blogPosts/deleteBlogPost",
+	(postId: string, { dispatch }) =>
+		catchError(async () => {
+			await api.blogs.delete(postId);
+			dispatch(blogPostSlice.actions.removePost({ postId }));
+		}),
+);
+
 const initialState: BlogPostSlice = {};
 
 export const blogPostSlice = createSlice({
 	name: "blogPosts",
 	initialState,
 	reducers: {
+		removePost: (state, action: PayloadAction<{ postId: string }>) => {
+			delete state[action.payload.postId];
+		},
 		editPost: (
 			state,
 			action: PayloadAction<{ id: string; updated_at: string; body: string }>,

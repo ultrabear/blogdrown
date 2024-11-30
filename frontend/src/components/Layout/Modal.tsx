@@ -5,11 +5,14 @@ export interface Closer {
 	close(): void;
 }
 
-function Modal({
-	Component,
-	close,
-	root,
-}: { Component: React.FC<Closer>; root: Element; close: () => void }) {
+type ModalProps<T> = {
+	Component: React.FC<Closer & T>;
+	root: Element;
+	close: () => void;
+	extraProps: T;
+};
+
+function Modal<T>({ Component, close, root, extraProps }: ModalProps<T>) {
 	const modalInner = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -37,18 +40,31 @@ function Modal({
 	return createPortal(
 		<div className="ModalRoot">
 			<div className="ModalItem" ref={modalInner}>
-				<Component close={close} />
+				<Component close={close} {...extraProps} />
 			</div>
 		</div>,
 		root,
 	);
 }
 
-export function ModalButton({
+type ModalButtonProps<T> = React.PropsWithChildren<{
+	Component: React.FC<Closer & T>;
+	root: Element;
+	extraProps?: T;
+}>;
+
+export function ModalButton(props: ModalButtonProps<void>): JSX.Element;
+
+export function ModalButton<T>(
+	props: ModalButtonProps<T> & { extraProps: T },
+): JSX.Element;
+
+export function ModalButton<T>({
 	Component,
 	root,
 	children,
-}: React.PropsWithChildren<{ Component: React.FC<Closer>; root: Element }>) {
+	extraProps,
+}: ModalButtonProps<T>) {
 	const [clicked, setClicked] = useState(false);
 
 	return (
@@ -61,6 +77,7 @@ export function ModalButton({
 					close={() => setClicked(false)}
 					Component={Component}
 					root={root}
+					extraProps={extraProps}
 				/>
 			)}
 		</div>

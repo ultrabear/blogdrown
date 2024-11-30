@@ -5,6 +5,7 @@ import { ApiError } from "../../store/api";
 import { getOneBlog } from "../../store/blogs";
 import { LoadingText } from "../Loading";
 import "./BlogPost.css";
+import PostEditButtons from "../PostEditButtons";
 import { cachedMarkdoc } from "../markdown";
 import { CommentBox } from "./CommentBox";
 
@@ -22,6 +23,7 @@ function BlogPost() {
 
 	const dispatch = useAppDispatch();
 	const [error, setError] = useState<ApiError>();
+	const session = useAppSelector((state) => state.session.user?.id);
 
 	useEffect(() => {
 		(async () => {
@@ -66,6 +68,7 @@ function BlogPost() {
 				{rendered}
 				{post.partial ? <LoadingText text="" /> : false}
 			</p>
+			{session === post.owner_id && <PostEditButtons postId={post.id} />}
 			<CommentBox postId={post.id} />
 		</div>
 	);

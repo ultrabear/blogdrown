@@ -64,6 +64,11 @@ button {
 		text-decoration-color: var(--theme-highlight);
 		text-underline-offset: 0.15em;
 	}
+
+	.delete button,
+	button.delete {
+		text-decoration-color: var(--theme-error);
+	}
 }
 
 form {

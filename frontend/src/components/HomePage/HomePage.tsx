@@ -7,6 +7,7 @@ import "./index.css";
 import { Link } from "react-router-dom";
 import { cmp, reversed } from "../../rustAtHome";
 import type { BlogPost } from "../../store/types";
+import PostEditButtons from "../PostEditButtons";
 import { toRenderable } from "../markdown";
 
 const selectNewestPosts = createSelector(
@@ -25,6 +26,7 @@ const postSliver = createSelector(
 
 function BlogTile({ blogId }: { blogId: string }) {
 	const blogPost = useAppSelector((state) => state.blogPosts[blogId]);
+	const session = useAppSelector((state) => state.session.user?.id);
 
 	const author = useAppSelector((state) =>
 		blogPost ? state.users[blogPost.owner_id] : undefined,
@@ -44,6 +46,7 @@ function BlogTile({ blogId }: { blogId: string }) {
 					<Link to={`/author/${author.id}`}>{author.username}</Link>
 				</div>
 				<p className="link obvious">{rendered}</p>
+				{session === author.id && <PostEditButtons postId={blogId} />}
 			</article>
 		</Link>
 	);
