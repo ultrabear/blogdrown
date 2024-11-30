@@ -35,9 +35,7 @@ export default function PostEditButtons({ postId }: { postId: string }) {
 			className="PostEditButtons link obvious"
 			style={{ paddingBottom: "10px", display: "flex" }}
 		>
-			<Link to="./edit" relative="path">
-				Edit
-			</Link>
+			<Link to={`/blog/${postId}/edit`}>Edit</Link>
 			<span className="delete">
 				<ModalButton
 					Component={DeleteConfirm}
