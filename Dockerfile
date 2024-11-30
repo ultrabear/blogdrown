@@ -42,6 +42,9 @@ RUN find /root/.cache/prisma/ -iname "*.tmp" -delete
 # build frontend
 FROM base-deps as frontend
 
+# build with rnpx
+RUN cargo install rnpx --locked
+
 # get frontend deps
 WORKDIR /frontend
 COPY frontend/pnpm-lock.yaml frontend/package.json /frontend/
@@ -49,7 +52,7 @@ RUN pnpm install --frozen-lockfile
 
 # build frontend
 COPY frontend /frontend
-RUN pnpm build
+RUN rnpx build
 
 # build from new base
 FROM base-core
