@@ -3,7 +3,16 @@ import {
 	createAsyncThunk,
 	createSlice,
 } from "@reduxjs/toolkit";
-import { ApiError, type GetAllPostsItem, type GetPostRes, api } from "./api";
+import type { RootState } from ".";
+import {
+	type ApiError,
+	type GetAllPostsItem,
+	type GetPostRes,
+	type NewBlogPost,
+	type NewBlogPostRes,
+	api,
+	catchError,
+} from "./api";
 import { apiCommentToStore, commentSlice } from "./comments";
 import type { BlogPost, BlogPostSlice } from "./types";
 import { userSlice } from "./users";
@@ -44,8 +53,8 @@ export const getAll = createAsyncThunk(
 
 export const getOneBlog = createAsyncThunk(
 	"blogPosts/getOneBlog",
-	async (id: string, { dispatch }): Promise<ApiError | undefined> => {
-		try {
+	(id: string, { dispatch }): Promise<ApiError | undefined> =>
+		catchError(async () => {
 			const res = await api.blogs.getOne(id);
 
 			dispatch(blogPostSlice.actions.loadPost(singlePostToStore(res)));
@@ -57,13 +66,36 @@ export const getOneBlog = createAsyncThunk(
 			dispatch(
 				commentSlice.actions.addComments(res.comments.map(apiCommentToStore)),
 			);
-		} catch (e) {
-			if (e instanceof ApiError) {
-				return e;
-			}
-			throw e;
-		}
-	},
+		}),
+);
+
+export const createBlogPost = createAsyncThunk(
+	"blogPosts/createBlogPost",
+	(
+		post: NewBlogPost,
+		{ dispatch, getState },
+	): Promise<ApiError | NewBlogPostRes> =>
+		catchError(async () => {
+			const state = getState() as RootState;
+			const authorId = state.session.user!.id;
+
+			const res = await api.blogs.create(post);
+
+			const { title_norm, ...rest } = res;
+
+			dispatch(
+				blogPostSlice.actions.loadPost({
+					...rest,
+					norm: title_norm,
+					title: post.title,
+					text: post.body,
+					partial: false,
+					owner_id: authorId,
+				}),
+			);
+
+			return res;
+		}),
 );
 
 const initialState: BlogPostSlice = {};

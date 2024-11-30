@@ -5,34 +5,50 @@ import {
 } from "@reduxjs/toolkit";
 import { type Login, type Signup, api, catchError } from "./api";
 import type { SessionSlice, SessionUser } from "./types";
+import { userSlice } from "./users";
 
 export const sessionAuth = createAsyncThunk(
 	"session/authMe",
-	async (_: undefined, { dispatch }) =>
-		await catchError(async () => {
+	(_: undefined, { dispatch }) =>
+		catchError(async () => {
 			const session = await api.auth.session();
 
 			dispatch(sessionSlice.actions.setSession(session));
+			dispatch(
+				userSlice.actions.addUsers([
+					{ id: session.id, username: session.username },
+				]),
+			);
 		}),
 );
 
 export const sessionLogin = createAsyncThunk(
 	"session/login",
-	async (login: Login, { dispatch }) =>
-		await catchError(async () => {
+	(login: Login, { dispatch }) =>
+		catchError(async () => {
 			const session = await api.auth.login(login);
 
 			dispatch(sessionSlice.actions.setSession(session));
+			dispatch(
+				userSlice.actions.addUsers([
+					{ id: session.id, username: session.username },
+				]),
+			);
 		}),
 );
 
 export const sessionSignup = createAsyncThunk(
 	"session/signup",
-	async (signup: Signup, { dispatch }) =>
-		await catchError(async () => {
+	(signup: Signup, { dispatch }) =>
+		catchError(async () => {
 			const session = await api.auth.signup(signup);
 
 			dispatch(sessionSlice.actions.setSession(session));
+			dispatch(
+				userSlice.actions.addUsers([
+					{ id: session.id, username: session.username },
+				]),
+			);
 		}),
 );
 

@@ -1,8 +1,22 @@
 .NewPost {
-	& textarea {
-		max-width: 100%;
-		min-width: 100%;
-		resize: none;
-		height: resize;
+	& form {
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+
+		& input.titleInput {
+			width: 80%;
+			font-size: x-large;
+		}
+
+		& textarea {
+			max-width: 100%;
+			min-width: 100%;
+			resize: none;
+		}
+	}
+
+	& .previewHeader {
+		margin-bottom: 0;
 	}
 }

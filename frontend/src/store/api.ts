@@ -128,9 +128,17 @@ async function datalessfetch<T>(
 
 export async function catchError(
 	cb: () => Promise<void>,
-): Promise<undefined | ApiError> {
+): Promise<undefined | ApiError>;
+
+export async function catchError<T>(
+	cb: () => Promise<T>,
+): Promise<T | ApiError>;
+
+export async function catchError<T>(
+	cb: () => Promise<T>,
+): Promise<T | ApiError> {
 	try {
-		await cb();
+		return await cb();
 	} catch (e) {
 		if (e instanceof ApiError) {
 			return e;

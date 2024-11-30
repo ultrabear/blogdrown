@@ -8,8 +8,6 @@ import "./BlogPost.css";
 import { cachedMarkdoc } from "../markdown";
 import { CommentBox } from "./CommentBox";
 
-type LoadState = "no" | "yes" | ApiError;
-
 function BlogPost() {
 	const { postId } = useParams();
 
@@ -23,7 +21,7 @@ function BlogPost() {
 	const rendered = post ? cachedMarkdoc(post.text) : undefined;
 
 	const dispatch = useAppDispatch();
-	const [loaded, setLoaded] = useState<LoadState>("no");
+	const [error, setError] = useState<ApiError>();
 
 	useEffect(() => {
 		(async () => {
@@ -31,18 +29,16 @@ function BlogPost() {
 				const res = await dispatch(getOneBlog(postId)).unwrap();
 
 				if (res) {
-					setLoaded(res);
-				} else {
-					setLoaded("yes");
+					setError(res);
 				}
 			}
 		})();
 	}, [dispatch, postId]);
 
-	if (loaded instanceof ApiError) {
+	if (error instanceof ApiError) {
 		return (
 			<div className="error">
-				Could not load post: {loaded.err.message} (Status {loaded.status})
+				Could not load post: {error.err.message} (Status {error.status})
 			</div>
 		);
 	}
