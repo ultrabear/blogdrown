@@ -10,6 +10,7 @@ import {
 	type GetPostRes,
 	type NewBlogPost,
 	type NewBlogPostRes,
+	type UpdateBlogPost,
 	api,
 	catchError,
 } from "./api";
@@ -98,12 +99,37 @@ export const createBlogPost = createAsyncThunk(
 		}),
 );
 
+export const editBlogPost = createAsyncThunk(
+	"blogPosts/editBlogPost",
+	(post: UpdateBlogPost & { id: string }, { dispatch }) =>
+		catchError(async () => {
+			const res = await api.blogs.update(post.id, { body: post.body });
+
+			dispatch(
+				blogPostSlice.actions.editPost({ ...post, updated_at: res.updated_at }),
+			);
+
+			return res;
+		}),
+);
+
 const initialState: BlogPostSlice = {};
 
 export const blogPostSlice = createSlice({
 	name: "blogPosts",
 	initialState,
 	reducers: {
+		editPost: (
+			state,
+			action: PayloadAction<{ id: string; updated_at: string; body: string }>,
+		) => {
+			const { id, updated_at, body } = action.payload;
+
+			if (id in state) {
+				state[id]!.updated_at = updated_at;
+				state[id]!.text = body;
+			}
+		},
 		loadPost: (state, action: PayloadAction<BlogPost>) => {
 			state[action.payload.id] = action.payload;
 		},

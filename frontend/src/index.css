@@ -103,3 +103,8 @@ form {
 .centered {
 	text-align: center;
 }
+
+.weak {
+	color: var(--theme-weaktext);
+	font-size: smaller;
+}

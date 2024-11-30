@@ -5,10 +5,48 @@
 
 	& h1 {
 		text-align: center;
+		transition: font-size 500ms;
+	}
+
+	& > div {
+		transition: font-size 500ms;
 	}
 
 	& .ProfileNav {
 		text-align: right;
+	}
+}
+
+@media (max-width: 500px) {
+	#Navigation {
+		& h1 {
+			font-size: xx-large;
+		}
+
+		& > div {
+			font-size: large;
+		}
+	}
+}
+
+@media (max-width: 400px) {
+	#Navigation {
+		& h1 {
+			font-size: x-large;
+		}
+
+		& > div {
+			font-size: medium;
+		}
+	}
+}
+
+@media (max-width: 350px) {
+	#Navigation {
+		grid-template-columns: 1fr 1fr;
+		.Home {
+			display: none;
+		}
 	}
 }
 

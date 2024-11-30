@@ -51,6 +51,9 @@ export default function NewPost() {
 					maxLength={128}
 					placeholder="Title"
 				/>
+				<span className="weak">
+					You cannot retitle a blog post once it has been posted.
+				</span>
 				<span className="error">
 					{errs?.err?.errors?.title ? errs.err.errors.title : false}
 				</span>

@@ -8,7 +8,9 @@ function Navigation() {
 			<div className="Home link obvious">
 				<Link to="/">Home</Link>
 			</div>
-			<h1>BlogDrown</h1>
+			<h1 className="link">
+				<Link to="/">BlogDrown</Link>
+			</h1>
 			<ProfileNav />
 		</div>
 	);

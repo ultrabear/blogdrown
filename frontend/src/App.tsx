@@ -1,6 +1,7 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import AuthorPage from "./components/AuthorPage/AuthorPage";
 import BlogPost from "./components/BlogPost/BlogPost";
+import EditPost from "./components/EditPost";
 import HomePage from "./components/HomePage/HomePage";
 import Layout from "./components/Layout/Layout";
 import NewPost from "./components/NewPost/NewPost";
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
 					{
 						path: ":postId",
 						element: <BlogPost />,
+					},
+					{
+						path: ":postId/edit",
+						element: <EditPost />,
 					},
 					{
 						path: "new",
