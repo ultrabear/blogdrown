@@ -24,7 +24,7 @@ const postSliver = createSelector(
 	(post, postId) => toRenderable(`${post.slice(0, 64)}[....](/blog/${postId})`),
 );
 
-function BlogTile({ blogId }: { blogId: string }) {
+export function BlogTile({ blogId }: { blogId: string }) {
 	const blogPost = useAppSelector((state) => state.blogPosts[blogId]);
 	const session = useAppSelector((state) => state.session.user?.id);
 
