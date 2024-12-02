@@ -1,11 +1,28 @@
 .BlogTile {
 	border: var(--theme-highlight) 2px dashed;
+	padding: 5px;
 
 	.title {
 		font-size: larger;
 	}
 
-	.user a {
-		color: var(--theme-weaktext);
+	.user {
+		&,
+		& a {
+			color: var(--theme-weaktext);
+		}
+
+		margin-left: 10px;
 	}
+
+	.rendered {
+		margin-left: 15px;
+	}
+}
+
+.HomePage,
+.AuthorPage {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
 }

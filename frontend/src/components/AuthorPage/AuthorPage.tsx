@@ -35,7 +35,7 @@ function AuthorPage() {
 	}, [dispatch]);
 
 	return (
-		<>
+		<div className="AuthorPage">
 			<h1 className="centered">
 				Posts by{" "}
 				{artist?.username || <span className="error">User Not Found</span>}
@@ -43,7 +43,7 @@ function AuthorPage() {
 			{posts.map((id) => (
 				<BlogTile key={id} blogId={id} />
 			))}
-		</>
+		</div>
 	);
 }
 

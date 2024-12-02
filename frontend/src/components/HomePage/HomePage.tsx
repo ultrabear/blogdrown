@@ -41,11 +41,13 @@ export function BlogTile({ blogId }: { blogId: string }) {
 	return (
 		<Link to={`/blog/${blogPost.id}`}>
 			<article className="BlogTile">
-				<div className="title">{blogPost.title}</div>
-				<div className="user link">
-					<Link to={`/author/${author.id}`}>{author.username}</Link>
+				<div className="title" title="Title">
+					<b>{blogPost.title}</b>
 				</div>
-				<p className="link obvious">{rendered}</p>
+				<div className="user link">
+					By <Link to={`/author/${author.id}`}>{author.username}</Link>
+				</div>
+				<p className="link obvious rendered">{rendered}</p>
 				{session === author.id && <PostEditButtons postId={blogId} />}
 			</article>
 		</Link>
@@ -64,7 +66,13 @@ function HomePage() {
 		dispatch(getAll());
 	}
 
-	return posts.map((id) => <BlogTile key={id} blogId={id} />);
+	return (
+		<div className="HomePage">
+			{posts.map((id) => (
+				<BlogTile key={id} blogId={id} />
+			))}
+		</div>
+	);
 }
 
 export default HomePage;
