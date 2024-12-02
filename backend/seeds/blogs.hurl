@@ -8,6 +8,10 @@ HTTP 200
 [Captures]
 mark_is_insane: body
 
+GET {{hurlin-async}}./demouser.hurl
+HTTP 200
+[Captures]
+demo_await: jsonpath "$.await"
 
 GET {{hurlin-import}}./users.hurl
 HTTP 200
@@ -62,3 +66,8 @@ session: {{john}}
   "body": "I had to do it I had to do it I had to do it I had to do it I had to do it I had to do it I had to do it I had to do it I HAD TO DO IT"
 }
 HTTP 201
+
+
+
+GET {{hurlin-await}}{{demo_await}}
+HTTP 200

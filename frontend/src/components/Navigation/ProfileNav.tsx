@@ -34,13 +34,7 @@ function SignupForm({ close }: Closer) {
 	};
 
 	return (
-		<form
-			className="AuthForm"
-			onSubmit={(e) => {
-				e.preventDefault();
-				submit();
-			}}
-		>
+		<form className="AuthForm" onSubmit={preventDefault(submit)}>
 			<h2>Sign Up</h2>
 			{errs && <span className="error">{errs.err.message}</span>}
 
@@ -106,13 +100,7 @@ function LoginForm({ close }: Closer) {
 	};
 
 	return (
-		<form
-			className="AuthForm"
-			onSubmit={(e) => {
-				e.preventDefault();
-				submit();
-			}}
-		>
+		<form className="AuthForm" onSubmit={preventDefault(submit)}>
 			<h2>Log In</h2>
 			{errs && <span className="error">{errs.err.message}</span>}
 
@@ -141,6 +129,16 @@ function LoginForm({ close }: Closer) {
 
 			<span className="link obvious">
 				<button type="submit">Log In</button>
+			</span>
+			<span className="link obvious">
+				<button
+					type="button"
+					onClick={preventDefault(() =>
+						loginLocal({ email: "demo@users.io", password: "demo-password" }),
+					)}
+				>
+					Demo User
+				</button>
 			</span>
 		</form>
 	);
