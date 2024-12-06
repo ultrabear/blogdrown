@@ -7,7 +7,7 @@ body {
 
 @media (prefers-color-scheme: light) {
 	html {
-		--theme-background: #ced2a0;
+		--theme-background: #d1d2bf;
 		--theme-text: #222;
 		--theme-highlight: #004cff;
 		--theme-weaktext: #444;
