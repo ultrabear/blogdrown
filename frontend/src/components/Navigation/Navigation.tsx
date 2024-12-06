@@ -7,9 +7,7 @@ function Navigation() {
 	return (
 		<div id="Navigation">
 			<div className="Home link obvious">
-				<Link to="/">Home</Link>
-				{" "}
-				<Link to="/following">Following</Link>
+				<Link to="/">Home</Link> <Link to="/following">Following</Link>
 			</div>
 			<h1 className="link">
 				<Link to="/">BlogDrown</Link>

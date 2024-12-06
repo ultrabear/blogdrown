@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 import { cmp, preventDefault, reversed } from "../../rustAtHome";
 import { type RootState, useAppDispatch, useAppSelector } from "../../store";
 import { getAll } from "../../store/blogs";
-import { BlogTile } from "../HomePage/HomePage";
 import { addFollow, removeFollow } from "../../store/session";
+import { BlogTile } from "../HomePage/HomePage";
 
 const selectArtistPosts = createSelector(
 	[

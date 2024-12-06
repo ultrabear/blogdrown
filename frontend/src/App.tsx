@@ -2,10 +2,10 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import AuthorPage from "./components/AuthorPage/AuthorPage";
 import BlogPost from "./components/BlogPost/BlogPost";
 import EditPost from "./components/EditPost";
+import Following from "./components/Following";
 import HomePage from "./components/HomePage/HomePage";
 import Layout from "./components/Layout/Layout";
 import NewPost from "./components/NewPost/NewPost";
-import Following from "./components/Following";
 
 const router = createBrowserRouter([
 	{

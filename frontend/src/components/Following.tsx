@@ -1,9 +1,9 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { useAppDispatch, useAppSelector, type RootState } from "../store";
-import { cmp, reversed } from "../rustAtHome";
-import { BlogTile } from "./HomePage/HomePage";
 import { useEffect } from "react";
+import { cmp, reversed } from "../rustAtHome";
+import { type RootState, useAppDispatch, useAppSelector } from "../store";
 import { getAll } from "../store/blogs";
+import { BlogTile } from "./HomePage/HomePage";
 
 const selectFollowedPosts = createSelector(
 	[
