@@ -245,7 +245,6 @@ pub struct Updated {
     updated_at: DateTime<FixedOffset>,
 }
 
-
 #[derive(Serialize)]
 pub struct FollowList {
     users: Vec<MinUser>,
