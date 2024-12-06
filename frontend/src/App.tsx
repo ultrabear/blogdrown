@@ -5,11 +5,16 @@ import EditPost from "./components/EditPost";
 import HomePage from "./components/HomePage/HomePage";
 import Layout from "./components/Layout/Layout";
 import NewPost from "./components/NewPost/NewPost";
+import Following from "./components/Following";
 
 const router = createBrowserRouter([
 	{
 		element: <Layout />,
 		children: [
+			{
+				path: "following",
+				element: <Following />,
+			},
 			{
 				path: "/",
 				element: <HomePage />,

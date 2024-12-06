@@ -5,7 +5,7 @@ export type SessionUser = {
 	created_at: string;
 };
 
-export type SessionSlice = { user: SessionUser | null };
+export type SessionSlice = { user: SessionUser | null, following: Record<string, true> };
 
 export type User = {
 	id: string;

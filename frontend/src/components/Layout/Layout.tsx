@@ -3,7 +3,7 @@ import Navigation from "../Navigation/Navigation";
 import "./index.css";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../store";
-import { sessionAuth } from "../../store/session";
+import { getFollows, sessionAuth } from "../../store/session";
 import { SessionLoading } from "./Session";
 
 function Layout() {
@@ -14,6 +14,7 @@ function Layout() {
 		dispatch(sessionAuth()).then(() => {
 			setLoading(false);
 		});
+		dispatch(getFollows());
 	}, [dispatch]);
 
 	return (

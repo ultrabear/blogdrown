@@ -20,6 +20,7 @@ use ulid::Ulid;
 
 mod blog;
 mod comments;
+mod follows;
 
 #[derive(Serialize, Default)]
 pub struct Error {
@@ -244,12 +245,19 @@ pub struct Updated {
     updated_at: DateTime<FixedOffset>,
 }
 
+
+#[derive(Serialize)]
+pub struct FollowList {
+    users: Vec<MinUser>,
+}
+
 pub fn api_routes() -> Router<BlogDrownState> {
     Router::new().nest(
         "/v1",
         Router::new()
             .nest("/auth", auth::routes())
             .nest("/blogs", blog::routes())
-            .nest("/comments", comments::routes()),
+            .nest("/comments", comments::routes())
+            .nest("/follows", follows::routes()),
     )
 }

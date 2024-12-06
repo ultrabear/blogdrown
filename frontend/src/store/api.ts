@@ -56,6 +56,8 @@ export type Updated = {
 	updated_at: string;
 };
 
+export type FollowList = { users: MinUser[] };
+
 export class ApiError {
 	constructor(
 		public err: Error,
@@ -208,6 +210,20 @@ export const api = {
 					"DELETE",
 				);
 			},
+		},
+	},
+
+	following: {
+		addFollow: async (userId: string): Promise<void> => {
+			await datalessfetch(`/follows/${encodeURIComponent(userId)}`, "POST");
+		},
+
+		removeFollow: async (userId: string): Promise<void> => {
+			await datalessfetch(`/follows/${encodeURIComponent(userId)}`, "DELETE");
+		},
+
+		getFollows: async (): Promise<FollowList> => {
+			return await notNull(datalessfetch("/follows", "GET"));
 		},
 	},
 };

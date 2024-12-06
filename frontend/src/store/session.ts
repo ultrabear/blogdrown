@@ -60,7 +60,36 @@ export const sessionLogout = createAsyncThunk(
 	},
 );
 
-const initialState: SessionSlice = { user: null };
+export const addFollow = createAsyncThunk(
+	"session/addFollow",
+	(userId: string, { dispatch }) =>
+		catchError(async () => {
+			await api.following.addFollow(userId);
+			dispatch(sessionSlice.actions.addFollow(userId));
+		}),
+);
+
+export const removeFollow = createAsyncThunk(
+	"session/addFollow",
+	(userId: string, { dispatch }) =>
+		catchError(async () => {
+			await api.following.removeFollow(userId);
+			dispatch(sessionSlice.actions.removeFollow(userId));
+		}),
+);
+
+export const getFollows = createAsyncThunk(
+	"session/addFollow",
+	(_: undefined, { dispatch }) =>
+		catchError(async () => {
+			const follows = await api.following.getFollows();
+
+			dispatch(sessionSlice.actions.addFollows(follows.users.map((u) => u.id)));
+			dispatch(userSlice.actions.addUsers(follows.users));
+		}),
+);
+
+const initialState: SessionSlice = { user: null, following: {} };
 
 export const sessionSlice = createSlice({
 	name: "session",
@@ -71,6 +100,19 @@ export const sessionSlice = createSlice({
 		},
 		removeSession: (state) => {
 			state.user = null;
+			state.following = {};
+		},
+		addFollow: (state, action: PayloadAction<string>) => {
+			state.following[action.payload] = true;
+		},
+		removeFollow: (state, action: PayloadAction<string>) => {
+			delete state.following[action.payload];
+		},
+
+		addFollows: (state, action: PayloadAction<string[]>) => {
+			for (const u of action.payload) {
+				state.following[u] = true;
+			}
 		},
 	},
 });
