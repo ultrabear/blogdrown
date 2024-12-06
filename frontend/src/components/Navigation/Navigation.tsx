@@ -1,13 +1,16 @@
 import "./Navigation.css";
 import { Link } from "react-router-dom";
+import { useAppSelector } from "../../store";
 import ProfileNav from "./ProfileNav";
 
 function Navigation() {
-	// TODO following spacing
+	const sessionExists = useAppSelector((state) => state.session.user !== null);
+
 	return (
 		<div id="Navigation">
 			<div className="Home link obvious">
-				<Link to="/">Home</Link> <Link to="/following">Following</Link>
+				<Link to="/">Home</Link>
+				{sessionExists && <Link to="/following">Following</Link>}
 			</div>
 			<h1 className="link">
 				<Link to="/">BlogDrown</Link>

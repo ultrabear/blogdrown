@@ -1,6 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { cmp, preventDefault, reversed } from "../../rustAtHome";
 import { type RootState, useAppDispatch, useAppSelector } from "../../store";
 import { getAll } from "../../store/blogs";
@@ -54,20 +54,31 @@ function AuthorPage() {
 				Posts by{" "}
 				{artist?.username || <span className="error">User Not Found</span>}
 			</h1>
-			{session && artist ? (
-				<div className="centered link obvious" style={{ fontSize: "1.5em" }}>
-					{isFollowing ? (
-						<button type="button" onClick={preventDefault(unfollow)}>
-							Unfollow
-						</button>
-					) : (
-						<button type="button" onClick={preventDefault(follow)}>
-							Follow
-						</button>
-					)}
-				</div>
+			{session && artist && session.id !== artist.id ? (
+				<>
+					<div className="centered link obvious" style={{ fontSize: "1.5em" }}>
+						{isFollowing ? (
+							<button type="button" onClick={preventDefault(unfollow)}>
+								Unfollow
+							</button>
+						) : (
+							<button type="button" onClick={preventDefault(follow)}>
+								Follow
+							</button>
+						)}
+					</div>
+				</>
 			) : (
 				false
+			)}
+			{session && artist?.id === session.id && (
+				<div className="centered link obvious">
+					<Link to="/blog/new">
+						{posts.length === 0
+							? "Upload your first post!"
+							: "Upload a new post!"}
+					</Link>
+				</div>
 			)}
 			{posts.map((id) => (
 				<BlogTile key={id} blogId={id} />

@@ -8,9 +8,9 @@ body {
 @media (prefers-color-scheme: light) {
 	html {
 		--theme-background: #ced2a0;
-		--theme-text: #000;
+		--theme-text: #222;
 		--theme-highlight: #004cff;
-		--theme-weaktext: #333;
+		--theme-weaktext: #444;
 		--theme-error: red;
 	}
 }
