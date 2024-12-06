@@ -23,10 +23,11 @@
 
 	.ModalItem {
 		pointer-events: all;
+		backdrop-filter: blur(5px);
 		background: color-mix(
 			in srgb,
 			var(--theme-highlight) 25%,
-			var(--theme-background)
+			var(--theme-background) 50%
 		);
 		border-radius: 10px;
 		padding: 5px;

@@ -39,18 +39,20 @@ export function BlogTile({ blogId }: { blogId: string }) {
 	const rendered = postSliver(blogPost);
 
 	return (
-		<Link to={`/blog/${blogPost.id}`}>
-			<article className="BlogTile">
-				<div className="title" title="Title">
-					<b>{blogPost.title}</b>
-				</div>
-				<div className="user link">
-					By <Link to={`/author/${author.id}`}>{author.username}</Link>
-				</div>
-				<p className="link obvious rendered">{rendered}</p>
-				{session === author.id && <PostEditButtons postId={blogId} />}
-			</article>
-		</Link>
+		<>
+			<Link to={`/blog/${blogPost.id}`}>
+				<article className="BlogTile">
+					<div className="title" title="Title">
+						<b>{blogPost.title}</b>
+					</div>
+					<div className="user link">
+						By <Link to={`/author/${author.id}`}>{author.username}</Link>
+					</div>
+					<p className="link obvious rendered">{rendered}</p>
+				</article>
+			</Link>
+			{session === author.id && <PostEditButtons postId={blogId} />}
+		</>
 	);
 }
 
