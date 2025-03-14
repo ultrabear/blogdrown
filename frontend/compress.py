@@ -1,5 +1,6 @@
 #!/bin/env python3
 
+from asyncio.taskgroups import TaskGroup
 import glob
 import asyncio
 import time
@@ -33,26 +34,17 @@ compressions: dict[str, tuple[str, list[str]]] = {
 }
 
 
-async def compress(f: Path):
-    jobs = []
-
+async def compress(f: Path, tg: TaskGroup):
     for ext, (program, args) in compressions.items():
         if not Path(f"{f}.{ext}").exists():
-            jobs.append(asyncio.create_task(compress_one_file(program, args, f, ext)))
-
-    if jobs:
-        await asyncio.wait(jobs)
+            tg.create_task(compress_one_file(program, args, f, ext))
 
 
 async def main():
-    tasks = []
-
-    for f in map(Path, glob.iglob("dist/**", recursive=True)):
-        if f.suffix in {".js", ".css", ".html", ".svg", ".txt"}:
-            tasks.append(asyncio.create_task(compress(f)))
-
-    if tasks:
-        await asyncio.wait(tasks)
+    async with asyncio.TaskGroup() as tg:
+        for f in map(Path, glob.iglob("dist/**", recursive=True)):
+            if f.suffix in {".js", ".css", ".html", ".svg", ".txt"}:
+                tg.create_task(compress(f, tg))
 
 
 if __name__ == "__main__":
