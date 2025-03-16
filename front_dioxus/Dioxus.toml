@@ -1,5 +1,9 @@
 [application]
 
+
+[[web.proxy]]
+backend = "http://localhost:5000/api"
+
 [web.app]
 
 # HTML title tag content

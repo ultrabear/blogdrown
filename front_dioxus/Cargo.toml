@@ -8,6 +8,9 @@ edition = "2021"
 
 [dependencies]
 dioxus = { version = "0.6.0", features = ["router"] }
+reqwest = "0.12.14"
+serde = { version = "1.0.219", default-features = false, features = ["std", "alloc"] }
+serde_derive = "1.0.219"
 
 [features]
 default = ["web"]
