@@ -7,10 +7,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = { version = "0.4.40", features = ["serde"] }
 dioxus = { version = "0.6.0", features = ["router"] }
+gloo-net = "0.6.0"
 reqwest = "0.12.14"
+secrecy = { version = "0.10.3", features = ["serde"] }
 serde = { version = "1.0.219", default-features = false, features = ["std", "alloc"] }
 serde_derive = "1.0.219"
+serde_json = "1.0.140"
+ulid = { git = "https://github.com/ultrabear/forked_ulid-rs", features = ["serde"], default-features = false }
 
 [features]
 default = ["web"]

@@ -5,6 +5,7 @@ use views::{Blog, Home};
 
 mod components;
 mod views;
+mod apitypes;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 enum Route {
@@ -12,7 +13,7 @@ enum Route {
     #[route("/")]
     Home {},
     #[route("/blog/:id")]
-    Blog { id: String },
+    Blog { id: ulid::Ulid },
 }
 
 const INDEX_CSS: Asset = asset!("/assets/styling/index.css");

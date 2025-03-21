@@ -4,20 +4,17 @@ use dioxus::prelude::*;
 const BLOG_CSS: Asset = asset!("/assets/styling/blog.css");
 
 #[component]
-pub fn Blog(id: String) -> Element {
+pub fn Blog(id: ulid::Ulid) -> Element {
+
     let mut post = use_resource(move || {
-        let id = id.clone();
         async move {
-            let url = format!("http://localhost:5000/api/v1/blogs/one?id={}", id);
-            reqwest::get(&url).await.unwrap().text().await.unwrap()
+
+            crate::apitypes::blogs::get_one(id).await.unwrap()
         }
     });
 
-    let p = post.cloned().unwrap_or_default();
+    let p = post.cloned();
 
-    
-
-    
 
     
 
@@ -29,7 +26,7 @@ pub fn Blog(id: String) -> Element {
             div {
                 class: "metabox",
                 div {
-                    div { class: "title", "{p}" }
+                    div { class: "title", "{p:?}" }
                 }
             }
         }
