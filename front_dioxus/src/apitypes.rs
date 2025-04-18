@@ -1,3 +1,4 @@
+use core::fmt;
 use std::collections::HashMap;
 
 use chrono::{DateTime, FixedOffset};
@@ -37,17 +38,17 @@ pub struct AuthUser {
     pub created_at: DateTime<FixedOffset>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Login {
     pub email: Email,
-    pub password: SecretString,
+    pub password: String,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Serialize)]
 pub struct Signup {
     pub email: Email,
     pub username: Username,
-    pub password: SecretString,
+    pub password: String,
 }
 
 // Posts / Comments
@@ -132,7 +133,7 @@ pub struct FollowList {
 const API_BASE: &str = "/api/v1";
 
 async fn jpost<T: serde::Serialize, R: serde::de::DeserializeOwned>(
-    route: &str,
+    route: impl fmt::Display,
     body: &T,
 ) -> Result<R, RequestTransportError> {
     let res = gloo_net::http::Request::post(&format!("{API_BASE}{route}"))
@@ -158,11 +159,47 @@ async fn jpost<T: serde::Serialize, R: serde::de::DeserializeOwned>(
     }
 }
 
-pub mod auth {
-    use super::{ApiError, AuthUser, Login};
+async fn get<R: serde::de::DeserializeOwned>(
+    route: impl fmt::Display,
+) -> Result<R, RequestTransportError> {
+    let res = gloo_net::http::Request::get(&format!("{API_BASE}{route}"))
+        .send()
+        .await;
 
-    pub async fn login(login: Login) -> Result<AuthUser, ApiError> {
-        todo!()
+    let res = res.map_err(|e| RequestTransportError::RequestError(e))?;
+
+    if (200..=299).contains(&res.status()) {
+        let json = res
+            .json()
+            .await
+            .map_err(|e| RequestTransportError::ParseError(e))?;
+        Ok(json)
+    } else {
+        let json = res
+            .json()
+            .await
+            .map_err(|e| RequestTransportError::ParseError(e))?;
+        Err(RequestTransportError::Api(json))
+    }
+}
+
+pub mod auth {
+    use super::{get, jpost, ApiError, AuthUser, Login, RequestTransportError, Signup};
+
+    pub async fn login(login: Login) -> Result<AuthUser, RequestTransportError> {
+        jpost("/auth/login", &login).await
+    }
+
+    pub async fn signup(signup: Signup) -> Result<AuthUser, RequestTransportError> {
+        jpost("/auth/signup", &signup).await
+    }
+
+    pub async fn session() -> Result<AuthUser, RequestTransportError> {
+        get("/auth").await
+    }
+
+    pub async fn logout() {
+        _ = gloo_net::http::Request::post("/auth/logout").send().await;
     }
 }
 
@@ -171,8 +208,8 @@ pub mod blogs {
 
     use super::{ApiError, GetPostRes, API_BASE};
 
-    pub async fn get_one(blogId: Ulid) -> Result<GetPostRes, ApiError> {
-        let req = gloo_net::http::Request::get(&format!("{API_BASE}/blogs/one?id={blogId}"))
+    pub async fn get_one(blog_id: Ulid) -> Result<GetPostRes, ApiError> {
+        let req = gloo_net::http::Request::get(&format!("{API_BASE}/blogs/one?id={blog_id}"))
             .send()
             .await
             .expect("request send please work");
