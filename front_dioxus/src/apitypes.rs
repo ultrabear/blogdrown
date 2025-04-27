@@ -199,7 +199,7 @@ pub mod auth {
     }
 
     pub async fn logout() {
-        _ = gloo_net::http::Request::post("/auth/logout").send().await;
+        _ = gloo_net::http::Request::post(&format!("{API_BASE}/auth/logout")).send().await;
     }
 }
 
